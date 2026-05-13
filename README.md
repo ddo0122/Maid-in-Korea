@@ -1,25 +1,8 @@
 # Maid-in-Korea
 
-> 본 프로젝트는 한국에 있는 메이드카페의 홍보 및 정보 제공 목적으로 만들어짐
+> 본 프로젝트는 한국에 있는 메이드카페의 홍보 및 정보 제공 목적으로 만들어졌습니다.
 
-# 사용 기술
-
-1. 프론트엔드
-   1. React
-   2. Vite
-   3. typescript
-   4. tailwindCSS
-   5. Redux(보류)
-2. 백엔드
-   1. Spring Boot
-   2. Spring Data JPA
-   3. Spring Sercurity
-   4. JWT
-   5. Redis(Refresh Token 저장)
-   6. Java 17+
-   7. Gradle
-
-# 2. 기능 설계
+## 1. 기능 설계
 
 1. 일반 회원
    1. 본 서비스의 일반 회원은 메이드 카페 이용 예정 대상자의 범위에서 서비스를 제공함
@@ -65,9 +48,9 @@
       2. Feed에는 메이드의 이름, 소개글, SNS 정보, 근무중인 메이드카페를 표시
       3. 메이드는 자신의 Feed에 사진, 영상이 포함된 게시글을 생성/수정/삭제할 수 있음
 
-# 화면 설계
+## 2. 화면 설계
 
-## 일반 회원 / 메이드 화면
+### 일반 회원 / 메이드 화면
 
 1. 로그인 / 회원가입
    ![alt text](README-images/image-1.png)
@@ -89,7 +72,7 @@
 6. 메이드 피드 페이지
    ![alt text](README-images/image-7.png)
 
-## 관리자 화면
+### 관리자 화면
 
 1. 로그인 페이지
    ![alt text](README-images/image-8.png)
