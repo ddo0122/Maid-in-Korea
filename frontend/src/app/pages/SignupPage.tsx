@@ -3,8 +3,19 @@ import { Link, useNavigate } from "react-router";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { Checkbox } from "../components/ui/checkbox";
 
 export function SignupPage() {
@@ -41,8 +52,10 @@ export function SignupPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-pink-600">회원가입</CardTitle>
-          <CardDescription>새로운 계정을 만들어보세요</CardDescription>
+          <CardTitle className="text-3xl font-bold text-pink-600">
+            SIGN UP
+          </CardTitle>
+          <CardDescription>Maid in Korea에 어서오세요</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="user" className="w-full">
@@ -100,7 +113,9 @@ export function SignupPage() {
                   <Checkbox
                     id="terms"
                     checked={agreeTerms}
-                    onCheckedChange={(checked) => setAgreeTerms(checked as boolean)}
+                    onCheckedChange={(checked) =>
+                      setAgreeTerms(checked as boolean)
+                    }
                   />
                   <label htmlFor="terms" className="text-sm text-gray-600">
                     이용약관 및 개인정보처리방침에 동의합니다
@@ -161,7 +176,9 @@ export function SignupPage() {
                   <Checkbox
                     id="maid-terms"
                     checked={agreeTerms}
-                    onCheckedChange={(checked) => setAgreeTerms(checked as boolean)}
+                    onCheckedChange={(checked) =>
+                      setAgreeTerms(checked as boolean)
+                    }
                   />
                   <label htmlFor="maid-terms" className="text-sm text-gray-600">
                     이용약관 및 개인정보처리방침에 동의합니다
@@ -175,7 +192,10 @@ export function SignupPage() {
           </Tabs>
           <div className="mt-6 text-center text-sm">
             <span className="text-gray-600">이미 계정이 있으신가요? </span>
-            <Link to="/login" className="text-pink-600 hover:underline font-medium">
+            <Link
+              to="/login"
+              className="text-pink-600 hover:underline font-medium"
+            >
               로그인
             </Link>
           </div>
