@@ -7,11 +7,11 @@
 
 ## 기술 스택
 
-- Java
+- Java 17+
 - Spring Boot
-- Spring MVC
+- Spring Data JPA
 - MySQL
-- JPA
+- Redis
 - Gradle
 
 ## 폴더 구조
