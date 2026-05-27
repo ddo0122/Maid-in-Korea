@@ -15,7 +15,7 @@ public enum GeneralErrorCode implements BaseErrorCode {
             "COMMON401_1",
             "인증되지 않았습니다. "),
     FORBIDDEN(HttpStatus.FORBIDDEN,
-            "COMMON402_1",
+            "COMMON403_1",
             "접근이 금지되었습니다."),
     NOT_FOUND(HttpStatus.NOT_FOUND,
             "COMMON404_1",

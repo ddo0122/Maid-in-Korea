@@ -25,111 +25,39 @@ import {
   Calendar,
   Star,
 } from "lucide-react";
-
-const mockCafeDetail = {
-  id: "1",
-  name: "오마이 메이드카페",
-  description:
-    "서울 최고의 메이드 카페입니다. 친절한 메이드들이 여러분을 맞이합니다.",
-  coverImage:
-    "https://mblogthumb-phinf.pstatic.net/MjAyMzA3MTNfNDQg/MDAxNjg5MjUwNTMzNDU5.1-QrveaEavSjSxAtEuRItMcThUqjK2qyZOzubdtkr3kg.pl62WNWyQdpBZSae-v0-pJAsbSzthUPJ251U4WK6EQUg.JPEG.hhyy114/IMG_1167.JPG?type=w800",
-  location: "서울 마포구 서교동 358-115",
-  phone: "02-1111-2222",
-  website: "@ohmy_maidcafe",
-  rating: 4.8,
-  isOpen: true,
-  openingHours: "15:00 - 22:00",
-  menus: [
-    {
-      id: "1",
-      name: "딸기 파르페",
-      price: 8000,
-      image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400",
-    },
-    {
-      id: "2",
-      name: "오므라이스",
-      price: 12000,
-      image:
-        "https://images.unsplash.com/photo-1513442542250-854d436a73f2?w=400",
-    },
-    {
-      id: "3",
-      name: "메이드 특제 음료",
-      price: 6000,
-      image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",
-    },
-    {
-      id: "4",
-      name: "케이크 세트",
-      price: 15000,
-      image:
-        "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400",
-    },
-  ],
-  schedule: [
-    { date: "2026-05-13", maids: ["사쿠라", "미유", "나나"] },
-    { date: "2026-05-14", maids: ["유이", "사쿠라", "레이"] },
-    { date: "2026-05-15", maids: ["미유", "나나", "유이"] },
-    { date: "2026-05-16", maids: ["레이", "사쿠라", "미유"] },
-    { date: "2026-05-17", maids: ["나나", "유이", "레이"] },
-  ],
-  maidFeeds: [
-    {
-      id: "1",
-      maidName: "사쿠라",
-      maidAvatar:
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100",
-      content: "오늘도 즐거운 하루였어요! 많이 방문해주세요 💕",
-      image:
-        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400",
-      timestamp: "2시간 전",
-      likes: 145,
-    },
-    {
-      id: "2",
-      maidName: "미유",
-      maidAvatar:
-        "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100",
-      content: "새로운 메뉴 나왔어요! 꼭 드셔보세요 🍰",
-      image:
-        "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400",
-      timestamp: "5시간 전",
-      likes: 203,
-    },
-  ],
-};
+import cafes from "../data/cafes.json";
 
 export function CafeDetailPage() {
   const { cafeId } = useParams();
   const [isFavorite, setIsFavorite] = useState(false);
+  const cafeDetail = cafes.find((cafe) => cafe.id === Number(cafeId)) ?? cafes[0];
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="relative h-96">
         <img
-          src={mockCafeDetail.coverImage}
-          alt={mockCafeDetail.name}
+          src={cafeDetail.coverImage}
+          alt={cafeDetail.name}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
           <div className="container mx-auto">
-            <h1 className="text-5xl font-bold mb-2">{mockCafeDetail.name}</h1>
+            <h1 className="text-5xl font-bold mb-2">{cafeDetail.name}</h1>
             <div className="flex items-center gap-4 text-lg">
               <span className="flex items-center gap-2">
                 <MapPin className="w-5 h-5" />
-                {mockCafeDetail.location}
+                {cafeDetail.location}
               </span>
               <span className="flex items-center gap-2">
                 <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                {mockCafeDetail.rating}
+                {cafeDetail.rating}
               </span>
               <Badge
-                variant={mockCafeDetail.isOpen ? "default" : "destructive"}
+                variant={cafeDetail.isOpen ? "default" : "destructive"}
                 className="text-sm"
               >
-                {mockCafeDetail.isOpen ? "영업중" : "영업종료"}
+                {cafeDetail.isOpen ? "영업중" : "영업종료"}
               </Badge>
             </div>
           </div>
@@ -144,19 +72,21 @@ export function CafeDetailPage() {
                 <CardTitle>소개</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700">{mockCafeDetail.description}</p>
+                <p className="text-gray-700">
+                  {cafeDetail.description || "등록된 소개가 없습니다."}
+                </p>
                 <div className="mt-4 space-y-2">
                   <div className="flex items-center gap-2">
                     <Clock className="w-5 h-5 text-gray-500" />
-                    <span>{mockCafeDetail.openingHours}</span>
+                    <span>{cafeDetail.openingHours || "운영 시간 미등록"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="w-5 h-5 text-gray-500" />
-                    <span>{mockCafeDetail.phone}</span>
+                    <span>{cafeDetail.phone || "전화번호 미등록"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Globe className="w-5 h-5 text-gray-500" />
-                    <span>{mockCafeDetail.website}</span>
+                    <span>{cafeDetail.website || "웹사이트 미등록"}</span>
                   </div>
                 </div>
               </CardContent>
@@ -170,7 +100,7 @@ export function CafeDetailPage() {
               </TabsList>
               <TabsContent value="menu">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  {mockCafeDetail.menus.map((menu) => (
+                  {cafeDetail.menus.map((menu) => (
                     <Card key={menu.id}>
                       <div className="flex gap-4 p-4">
                         <img
@@ -187,6 +117,9 @@ export function CafeDetailPage() {
                       </div>
                     </Card>
                   ))}
+                  {cafeDetail.menus.length === 0 && (
+                    <p className="text-gray-500">등록된 메뉴가 없습니다.</p>
+                  )}
                 </div>
               </TabsContent>
               <TabsContent value="schedule">
@@ -199,7 +132,7 @@ export function CafeDetailPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {mockCafeDetail.schedule.map((day) => (
+                      {cafeDetail.schedule.map((day) => (
                         <div
                           key={day.date}
                           className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
@@ -220,13 +153,18 @@ export function CafeDetailPage() {
                           </div>
                         </div>
                       ))}
+                      {cafeDetail.schedule.length === 0 && (
+                        <p className="text-gray-500">
+                          등록된 스케줄이 없습니다.
+                        </p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
               <TabsContent value="feeds">
                 <div className="space-y-4 mt-4">
-                  {mockCafeDetail.maidFeeds.map((feed) => (
+                  {cafeDetail.maidFeeds.map((feed) => (
                     <Card key={feed.id}>
                       <CardHeader>
                         <div className="flex items-center gap-3">
@@ -256,6 +194,11 @@ export function CafeDetailPage() {
                       </CardContent>
                     </Card>
                   ))}
+                  {cafeDetail.maidFeeds.length === 0 && (
+                    <p className="text-gray-500">
+                      등록된 메이드 피드가 없습니다.
+                    </p>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>

@@ -7,47 +7,10 @@ import { Input } from "../components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { Label } from "../components/ui/label";
 import { MessageCircle, Heart, PenSquare, Send } from "lucide-react";
-
-const mockPosts = [
-  {
-    id: "1",
-    author: "카페러버",
-    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100",
-    title: "강남 메이드 카페 후기",
-    content: "오늘 강남에 있는 메이드 카페에 다녀왔어요! 정말 친절하고 음식도 맛있었습니다.",
-    timestamp: "1시간 전",
-    likes: 24,
-    comments: [
-      { id: "1", author: "메이드팬", content: "저도 거기 가봤는데 정말 좋더라구요!", timestamp: "30분 전" },
-    ],
-  },
-  {
-    id: "2",
-    author: "메이드덕후",
-    avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100",
-    title: "홍대 신규 오픈 카페 정보",
-    content: "홍대에 새로운 메이드 카페가 오픈했다고 하네요. 다음 주에 가볼 예정입니다!",
-    timestamp: "3시간 전",
-    likes: 45,
-    comments: [],
-  },
-  {
-    id: "3",
-    author: "스윗걸",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
-    title: "메이드 카페 추천 메뉴",
-    content: "메이드 카페에서 꼭 먹어봐야 할 메뉴 추천해드릴게요. 오므라이스는 기본이고...",
-    timestamp: "5시간 전",
-    likes: 67,
-    comments: [
-      { id: "1", author: "푸드러버", content: "오므라이스 정말 맛있죠!", timestamp: "2시간 전" },
-      { id: "2", author: "디저트킹", content: "파르페도 추천합니다~", timestamp: "1시간 전" },
-    ],
-  },
-];
+import communityPosts from "../data/communityPosts.json";
 
 export function CommunityPage() {
-  const [posts, setPosts] = useState(mockPosts);
+  const [posts, setPosts] = useState(communityPosts);
   const [newPostTitle, setNewPostTitle] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
   const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
@@ -56,7 +19,7 @@ export function CommunityPage() {
   const handleCreatePost = () => {
     if (newPostTitle && newPostContent) {
       const newPost = {
-        id: String(posts.length + 1),
+        id: Math.max(0, ...posts.map((post) => post.id)) + 1,
         author: "나",
         avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100",
         title: newPostTitle,
@@ -72,7 +35,7 @@ export function CommunityPage() {
     }
   };
 
-  const handleAddComment = (postId: string) => {
+  const handleAddComment = (postId: number) => {
     if (newComment[postId]) {
       const updatedPosts = posts.map((post) => {
         if (post.id === postId) {
@@ -81,7 +44,7 @@ export function CommunityPage() {
             comments: [
               ...post.comments,
               {
-                id: String(post.comments.length + 1),
+                id: Math.max(0, ...post.comments.map((comment) => comment.id)) + 1,
                 author: "나",
                 content: newComment[postId],
                 timestamp: "방금 전",

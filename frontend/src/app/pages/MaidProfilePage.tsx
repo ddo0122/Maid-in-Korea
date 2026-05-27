@@ -8,29 +8,10 @@ import { Textarea } from "../components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Plus, Edit, Trash2, Instagram, Twitter, ExternalLink } from "lucide-react";
+import maidProfiles from "../data/maidProfiles.json";
 
 export function MaidProfilePage() {
-  const [profiles, setProfiles] = useState([
-    {
-      id: "sakura123",
-      name: "사쿠라",
-      bio: "안녕하세요! 사쿠라입니다 💕",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100",
-      cafes: ["카페 메이드 서울"],
-      sns: [
-        { type: "instagram", handle: "@sakura_maid" },
-        { type: "twitter", handle: "@sakura_tw" },
-      ],
-    },
-    {
-      id: "miyu456",
-      name: "미유",
-      bio: "메이드 카페에서 즐거운 시간 보내세요~",
-      avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100",
-      cafes: ["카페 메이드 서울", "스위트 메이드 카페"],
-      sns: [{ type: "instagram", handle: "@miyu_cafe" }],
-    },
-  ]);
+  const [profiles, setProfiles] = useState(maidProfiles);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newProfileName, setNewProfileName] = useState("");
@@ -39,12 +20,16 @@ export function MaidProfilePage() {
   const handleCreateProfile = () => {
     if (newProfileName && newProfileBio) {
       const newProfile = {
-        id: `profile${profiles.length + 1}`,
+        id: Math.max(0, ...profiles.map((profile) => profile.id)) + 1,
         name: newProfileName,
         bio: newProfileBio,
         avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
+        followers: 0,
+        following: 0,
+        posts: 0,
         cafes: [],
         sns: [],
+        feedPosts: [],
       };
       setProfiles([...profiles, newProfile]);
       setNewProfileName("");
@@ -53,7 +38,7 @@ export function MaidProfilePage() {
     }
   };
 
-  const handleDeleteProfile = (id: string) => {
+  const handleDeleteProfile = (id: number) => {
     setProfiles(profiles.filter((profile) => profile.id !== id));
   };
 

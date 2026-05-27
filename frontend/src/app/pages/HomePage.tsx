@@ -11,64 +11,18 @@ import {
 } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Search, MapPin, Heart, Clock, Star } from "lucide-react";
-
-const mockCafes = [
-  {
-    id: "1",
-    name: "오마이 메이드 카페",
-    location: "서울 홍대",
-    image:
-      "https://i.namu.wiki/i/Zc7wR3eN5-E07wELfOorf0PFw0aZAT6AXPTpQvXV0Ak3MbZF5rRZ_T_e6WNgZBd4_wNA2Q0nlHRMj76-JV90KA.webp",
-    rating: 4.8,
-    distance: "1.2km",
-    isOpen: true,
-    tags: ["신규", "인기"],
-  },
-  {
-    id: "2",
-    name: "메이드문",
-    location: "서울 홍대",
-    image:
-      "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20231004_149%2F1696396534792096by_PNG%2F1000008468.png",
-    rating: 4.6,
-    distance: "1.4km",
-    isOpen: true,
-    tags: ["추천"],
-  },
-  {
-    id: "3",
-    name: "마지텐시",
-    location: "서울 홍대",
-    image:
-      "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250114_249%2F1736851160379Yzitu_JPEG%2F1000011307.jpg",
-    rating: 4.9,
-    distance: "1.3km",
-    isOpen: false,
-    tags: ["인기"],
-  },
-  {
-    id: "4",
-    name: "메이드리밍",
-    location: "서울 홍대",
-    image:
-      "https://search.pstatic.net/common/?src=https%3A%2F%2Fnaverbooking-phinf.pstatic.net%2F20250806_201%2F1754451170975aUFz4_JPEG%2F%25B3%25D7%25C0%25CC%25B9%25F6_%25B7%25CE%25B0%25ED.jpeg",
-    rating: 4.7,
-    distance: "1.5km",
-    isOpen: true,
-    tags: ["신규"],
-  },
-];
+import cafes from "../data/cafes.json";
 
 export function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("전체");
 
-  const filteredCafes = mockCafes.filter((cafe) => {
+  const filteredCafes = cafes.filter((cafe) => {
     const matchesSearch = cafe.name
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const matchesLocation =
-      selectedLocation === "전체" || cafe.location.includes(selectedLocation);
+      selectedLocation === "전체" || cafe.area.includes(selectedLocation);
     return matchesSearch && matchesLocation;
   });
 
@@ -183,7 +137,7 @@ export function HomePage() {
                   <CardDescription className="flex items-center gap-4">
                     <span className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
-                      {cafe.location}
+                      {cafe.area}
                     </span>
                     <span className="text-gray-500">{cafe.distance}</span>
                   </CardDescription>

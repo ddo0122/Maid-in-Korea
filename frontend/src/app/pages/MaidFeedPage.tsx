@@ -8,62 +8,16 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Heart, MessageCircle, Send, Plus, Instagram, Twitter, MapPin } from "lucide-react";
+import maidProfiles from "../data/maidProfiles.json";
 
 export function MaidFeedPage() {
   const { profileId } = useParams();
+  const selectedProfile =
+    maidProfiles.find((profile) => profile.id === Number(profileId)) ??
+    maidProfiles[0];
 
-  const [profile] = useState({
-    id: "sakura123",
-    name: "사쿨라",
-    bio: "안녕하세요! 사쿠라입니다 💕\n메이드 카페에서 여러분을 기다리고 있어요!",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400",
-    followers: 1234,
-    following: 567,
-    posts: 89,
-    cafes: ["카페 메이드 서울"],
-    sns: [
-      { type: "instagram", handle: "@sakura_maid" },
-      { type: "twitter", handle: "@sakura_tw" },
-    ],
-  });
-
-  const [posts, setPosts] = useState([
-    {
-      id: "1",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600",
-      caption: "오늘도 즐거운 하루였어요! 많이 방문해주세요 💕",
-      likes: 245,
-      comments: [
-        { author: "user1", text: "너무 예뻐요!" },
-        { author: "user2", text: "다음주에 갈게요~" },
-      ],
-      timestamp: "2시간 전",
-    },
-    {
-      id: "2",
-      image: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600",
-      caption: "새로운 메뉴 나왔어요! 꼭 드셔보세요 🍰",
-      likes: 312,
-      comments: [{ author: "user3", text: "맛있어 보여요!" }],
-      timestamp: "1일 전",
-    },
-    {
-      id: "3",
-      image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600",
-      caption: "특제 음료 추천합니다~ 🧋",
-      likes: 189,
-      comments: [],
-      timestamp: "2일 전",
-    },
-    {
-      id: "4",
-      image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600",
-      caption: "케이크 세트 신메뉴! 달콤해요 🎂",
-      likes: 278,
-      comments: [],
-      timestamp: "3일 전",
-    },
-  ]);
+  const [profile] = useState(selectedProfile);
+  const [posts, setPosts] = useState(selectedProfile.feedPosts);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newPostCaption, setNewPostCaption] = useState("");
@@ -72,7 +26,7 @@ export function MaidFeedPage() {
   const handleCreatePost = () => {
     if (newPostCaption) {
       const newPost = {
-        id: String(posts.length + 1),
+        id: Math.max(0, ...posts.map((post) => post.id)) + 1,
         image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600",
         caption: newPostCaption,
         likes: 0,
@@ -85,7 +39,7 @@ export function MaidFeedPage() {
     }
   };
 
-  const handleLike = (postId: string) => {
+  const handleLike = (postId: number) => {
     setPosts(
       posts.map((post) =>
         post.id === postId ? { ...post, likes: post.likes + 1 } : post
@@ -93,7 +47,7 @@ export function MaidFeedPage() {
     );
   };
 
-  const handleAddComment = (postId: string) => {
+  const handleAddComment = (postId: number) => {
     if (newComment[postId]) {
       setPosts(
         posts.map((post) =>

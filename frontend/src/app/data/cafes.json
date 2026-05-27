@@ -1,0 +1,128 @@
+[
+  {
+    "id": 1,
+    "name": "오마이 메이드 카페",
+    "description": "서울 최고의 메이드 카페입니다. 친절한 메이드들이 여러분을 맞이합니다.",
+    "location": "서울 마포구 서교동 358-115",
+    "area": "서울 홍대",
+    "image": "https://i.namu.wiki/i/Zc7wR3eN5-E07wELfOorf0PFw0aZAT6AXPTpQvXV0Ak3MbZF5rRZ_T_e6WNgZBd4_wNA2Q0nlHRMj76-JV90KA.webp",
+    "coverImage": "https://mblogthumb-phinf.pstatic.net/MjAyMzA3MTNfNDQg/MDAxNjg5MjUwNTMzNDU5.1-QrveaEavSjSxAtEuRItMcThUqjK2qyZOzubdtkr3kg.pl62WNWyQdpBZSae-v0-pJAsbSzthUPJ251U4WK6EQUg.JPEG.hhyy114/IMG_1167.JPG?type=w800",
+    "phone": "02-1111-2222",
+    "website": "@ohmy_maidcafe",
+    "rating": 4.8,
+    "distance": "1.2km",
+    "isOpen": true,
+    "openingHours": "15:00 - 22:00",
+    "tags": ["신규", "인기"],
+    "menus": [
+      {
+        "id": 1,
+        "name": "딸기 파르페",
+        "price": 8000,
+        "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400"
+      },
+      {
+        "id": 2,
+        "name": "오므라이스",
+        "price": 12000,
+        "image": "https://images.unsplash.com/photo-1513442542250-854d436a73f2?w=400"
+      },
+      {
+        "id": 3,
+        "name": "메이드 특제 음료",
+        "price": 6000,
+        "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400"
+      },
+      {
+        "id": 4,
+        "name": "케이크 세트",
+        "price": 15000,
+        "image": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400"
+      }
+    ],
+    "schedule": [
+      { "date": "2026-05-13", "maids": ["사쿠라", "미유", "나나"] },
+      { "date": "2026-05-14", "maids": ["유이", "사쿠라", "레이"] },
+      { "date": "2026-05-15", "maids": ["미유", "나나", "유이"] },
+      { "date": "2026-05-16", "maids": ["레이", "사쿠라", "미유"] },
+      { "date": "2026-05-17", "maids": ["나나", "유이", "레이"] }
+    ],
+    "maidFeeds": [
+      {
+        "id": 1,
+        "maidName": "사쿠라",
+        "maidAvatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100",
+        "content": "오늘도 즐거운 하루였어요! 많이 방문해주세요 💕",
+        "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400",
+        "timestamp": "2시간 전",
+        "likes": 145
+      },
+      {
+        "id": 2,
+        "maidName": "미유",
+        "maidAvatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100",
+        "content": "새로운 메뉴 나왔어요! 꼭 드셔보세요 🍰",
+        "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400",
+        "timestamp": "5시간 전",
+        "likes": 203
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "메이드문",
+    "description": "",
+    "location": "서울 홍대",
+    "area": "서울 홍대",
+    "image": "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20231004_149%2F1696396534792096by_PNG%2F1000008468.png",
+    "coverImage": "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20231004_149%2F1696396534792096by_PNG%2F1000008468.png",
+    "phone": "",
+    "website": "",
+    "rating": 4.6,
+    "distance": "1.4km",
+    "isOpen": true,
+    "openingHours": "",
+    "tags": ["추천"],
+    "menus": [],
+    "schedule": [],
+    "maidFeeds": []
+  },
+  {
+    "id": 3,
+    "name": "마지텐시",
+    "description": "",
+    "location": "서울 홍대",
+    "area": "서울 홍대",
+    "image": "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250114_249%2F1736851160379Yzitu_JPEG%2F1000011307.jpg",
+    "coverImage": "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250114_249%2F1736851160379Yzitu_JPEG%2F1000011307.jpg",
+    "phone": "",
+    "website": "",
+    "rating": 4.9,
+    "distance": "1.3km",
+    "isOpen": false,
+    "openingHours": "",
+    "tags": ["인기"],
+    "menus": [],
+    "schedule": [],
+    "maidFeeds": []
+  },
+  {
+    "id": 4,
+    "name": "메이드리밍",
+    "description": "",
+    "location": "서울 홍대",
+    "area": "서울 홍대",
+    "image": "https://search.pstatic.net/common/?src=https%3A%2F%2Fnaverbooking-phinf.pstatic.net%2F20250806_201%2F1754451170975aUFz4_JPEG%2F%25B3%25D7%25C0%25CC%25B9%25F6_%25B7%25CE%25B0%25ED.jpeg",
+    "coverImage": "https://search.pstatic.net/common/?src=https%3A%2F%2Fnaverbooking-phinf.pstatic.net%2F20250806_201%2F1754451170975aUFz4_JPEG%2F%25B3%25D7%25C0%25CC%25B9%25F6_%25B7%25CE%25B0%25ED.jpeg",
+    "phone": "",
+    "website": "",
+    "rating": 4.7,
+    "distance": "1.5km",
+    "isOpen": true,
+    "openingHours": "",
+    "tags": ["신규"],
+    "menus": [],
+    "schedule": [],
+    "maidFeeds": []
+  }
+]
