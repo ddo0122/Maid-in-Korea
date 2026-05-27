@@ -8,23 +8,32 @@ import { CafeDetailPage } from "./pages/CafeDetailPage";
 import { CommunityPage } from "./pages/CommunityPage";
 import { MaidProfilePage } from "./pages/MaidProfilePage";
 import { MaidFeedPage } from "./pages/MaidFeedPage";
+import { MyPage } from "./pages/MyPage";
 import { AdminLoginPage } from "./pages/admin/AdminLoginPage";
 import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
 import { AdminCafeManagementPage } from "./pages/admin/AdminCafeManagementPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { ProtectedRoute } from "./routes/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: MainLayout,
     children: [
-      { index: true, Component: HomePage },
       { path: "login", Component: LoginPage },
       { path: "signup", Component: SignupPage },
-      { path: "cafe/:cafeId", Component: CafeDetailPage },
-      { path: "community", Component: CommunityPage },
-      { path: "maid/profile", Component: MaidProfilePage },
-      { path: "maid/feed/:profileId", Component: MaidFeedPage },
+      {
+        Component: ProtectedRoute,
+        children: [
+          { index: true, Component: HomePage },
+          { path: "cafes/:id", Component: CafeDetailPage },
+          { path: "community", Component: CommunityPage },
+          { path: "mypage", Component: MyPage },
+          { path: "maid/profile", Component: MaidProfilePage },
+          { path: "maid/feed", Component: MaidFeedPage },
+        ],
+      },
+      { path: "*", Component: NotFoundPage },
     ],
   },
   {

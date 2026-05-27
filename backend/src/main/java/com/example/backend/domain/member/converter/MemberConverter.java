@@ -15,7 +15,6 @@ public class MemberConverter {
         return MemberResDTO.MemberInfo.builder()
                 .name(member.getName())
                 .email(member.getEmail())
-                .point(member.getPoint())
                 .build();
     }
 
@@ -30,7 +29,6 @@ public class MemberConverter {
                 .birth(signupInfo.birth())
                 .address(signupInfo.address())
                 .detailAddress(signupInfo.detailAddress())
-                .point(0)
                 .password(encodedPassword)
                 .role(Role.USER)
                 .build();
@@ -50,7 +48,6 @@ public class MemberConverter {
                 .birth("")
                 .address("")
                 .detailAddress("")
-                .point(0)
                 .build();
     }
 

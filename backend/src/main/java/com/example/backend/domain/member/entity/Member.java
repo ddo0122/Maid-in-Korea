@@ -55,10 +55,6 @@ public class Member extends BaseEntity {
     @Column(name = "detail_address", nullable = false)
     private String detailAddress;
 
-    @Column(name = "point", nullable = false)
-    private Integer point;
-
-
     public void linkSocialAccount(
             SocialType socialType,
             String socialUid

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { Button } from "../components/ui/button";
+import { KakaoAuthButton } from "../components/auth/KakaoAuthButton";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import {
@@ -17,16 +18,31 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 
+import { login, saveAuthToken } from "../api/authApi";
+
 export function LoginPage() {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [maidEmail, setMaidEmail] = useState("");
   const [maidPassword, setMaidPassword] = useState("");
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
-  const handleUserLogin = (e: React.FormEvent) => {
+  const handleUserLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/");
+
+    try {
+      const result = await login({
+        email: userEmail,
+        password: userPassword,
+      });
+
+      saveAuthToken(result.tokenType, result.accessToken);
+      navigate(from, { replace: true });
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "로그인에 실패했습니다.");
+    }
   };
 
   const handleMaidLogin = (e: React.FormEvent) => {
@@ -110,6 +126,12 @@ export function LoginPage() {
               </form>
             </TabsContent>
           </Tabs>
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-gray-200" />
+            <span className="text-xs text-gray-500">또는</span>
+            <div className="h-px flex-1 bg-gray-200" />
+          </div>
+          <KakaoAuthButton label="카카오톡으로 로그인" />
           <div className="mt-6 text-center text-sm">
             <span className="text-gray-600">계정이 없으신가요? </span>
             <Link
