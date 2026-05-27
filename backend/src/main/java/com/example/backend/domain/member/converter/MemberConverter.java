@@ -1,5 +1,6 @@
 package com.example.backend.domain.member.converter;
 
+import com.example.backend.domain.maid.dto.MaidReqDTO;
 import com.example.backend.domain.member.dto.MemberReqDTO;
 import com.example.backend.domain.member.dto.MemberResDTO;
 import com.example.backend.domain.member.entity.Member;
@@ -15,7 +16,6 @@ public class MemberConverter {
         return MemberResDTO.MemberInfo.builder()
                 .name(member.getName())
                 .email(member.getEmail())
-                .point(member.getPoint())
                 .build();
     }
 
@@ -30,7 +30,6 @@ public class MemberConverter {
                 .birth(signupInfo.birth())
                 .address(signupInfo.address())
                 .detailAddress(signupInfo.detailAddress())
-                .point(0)
                 .password(encodedPassword)
                 .role(Role.USER)
                 .build();
@@ -50,7 +49,6 @@ public class MemberConverter {
                 .birth("")
                 .address("")
                 .detailAddress("")
-                .point(0)
                 .build();
     }
 
@@ -72,5 +70,19 @@ public class MemberConverter {
                 .build();
     }
 
-
+    public static Member toMaidMember(
+            MemberReqDTO.SignupInfo signup,
+            String encodedPassword
+    ) {
+        return Member.builder()
+                .name(signup.name())
+                .email(signup.email())
+                .gender(signup.gender())
+                .birth(signup.birth())
+                .address(signup.address())
+                .detailAddress(signup.detailAddress())
+                .password(encodedPassword)
+                .role(Role.MAID)
+                .build();
+    }
 }
