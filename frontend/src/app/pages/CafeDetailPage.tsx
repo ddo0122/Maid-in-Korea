@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router";
+import { useParams } from "react-router";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -28,9 +28,10 @@ import {
 import cafes from "../data/cafes.json";
 
 export function CafeDetailPage() {
-  const { cafeId } = useParams();
+  const { id } = useParams();
   const [isFavorite, setIsFavorite] = useState(false);
-  const cafeDetail = cafes.find((cafe) => cafe.id === Number(cafeId)) ?? cafes[0];
+  const cafeDetail =
+    cafes.find((cafe) => cafe.id === Number(id)) ?? cafes[0];
 
   return (
     <div className="min-h-screen bg-gray-50">

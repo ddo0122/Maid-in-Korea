@@ -26,11 +26,11 @@ export const router = createBrowserRouter([
         Component: ProtectedRoute,
         children: [
           { index: true, Component: HomePage },
-          { path: "cafes/:id", Component: CafeDetailPage },
+          { path: "cafe/:id", Component: CafeDetailPage },
           { path: "community", Component: CommunityPage },
           { path: "mypage", Component: MyPage },
           { path: "maid/profile", Component: MaidProfilePage },
-          { path: "maid/feed", Component: MaidFeedPage },
+          { path: "maid/feed/:profileId", Component: MaidFeedPage },
         ],
       },
       { path: "*", Component: NotFoundPage },
