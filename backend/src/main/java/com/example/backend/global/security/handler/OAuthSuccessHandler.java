@@ -41,7 +41,7 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         // 인증 객체 컨테이너에서 OAuth 인증 객체 가져오기
         OAuthMember member = (OAuthMember) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        // 토큰 제작을 위해 OAuth 인증 객체에서 User 추출 -> AuthUser 제작
+        // 토큰 제작을 위해 OAuth 인증 객체에서 Member 추출 -> AuthMember 제작
         String accessToken = jwtUtil.createAccessToken(new AuthMember(member.getMember()));
 
         // 응답 통일 객체 래핑

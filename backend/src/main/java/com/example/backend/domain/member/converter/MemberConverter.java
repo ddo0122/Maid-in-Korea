@@ -4,6 +4,7 @@ import com.example.backend.domain.member.dto.MemberReqDTO;
 import com.example.backend.domain.member.dto.MemberResDTO;
 import com.example.backend.domain.member.entity.Member;
 import com.example.backend.domain.member.enums.Gender;
+import com.example.backend.domain.member.enums.Role;
 import com.example.backend.global.security.dto.OAuthDTO;
 
 public class MemberConverter {
@@ -31,6 +32,7 @@ public class MemberConverter {
                 .detailAddress(signupInfo.detailAddress())
                 .point(0)
                 .password(encodedPassword)
+                .role(Role.USER)
                 .build();
     }
 
@@ -43,6 +45,7 @@ public class MemberConverter {
                 .password("")
                 .socialType(dto.getSocialType())
                 .socialUid(dto.getSocialUid())
+                .role(Role.USER)
                 .gender(Gender.NONE)
                 .birth("")
                 .address("")

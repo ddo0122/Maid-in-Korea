@@ -51,12 +51,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             // AccessToken 검증하기: 올바를 토큰의 경우
             if(jwtUtil.isValid(token)){
 
-                // JWT 토큰에서 유저 정보 조회: UID와 소셜 로그인 타입 가져오기
-                String uid = jwtUtil.getUid(token);
-                SocialType socialType = jwtUtil.getSocialType(token);
+                // JWT 토큰에서 유저 ID 가져오기
+                Long memberId = jwtUtil.getMemberId(token);
 
-                // 인증 객체 생성: 로그인 타입과 UID로 찾아온 뒤, 인증 객체 생성
-                UserDetails user = customMemberDetailsService.loadUserByUidAndSocialType(socialType, uid);
+                // 인증 객체 생성: Member ID로 인증 객체 생성
+                UserDetails user = customMemberDetailsService.loadUserById(memberId);
                 Authentication auth = new UsernamePasswordAuthenticationToken(
                         user,
                         null,

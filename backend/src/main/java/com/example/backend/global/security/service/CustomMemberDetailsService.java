@@ -17,11 +17,10 @@ public class CustomMemberDetailsService {
 
     private final MemberRepository memberRepository;
 
-    public UserDetails loadUserByUidAndSocialType(
-            SocialType socialType,
-            String membername
+    public UserDetails loadUserById(
+            Long id
     ) throws UsernameNotFoundException {
-        Member member = memberRepository.findBySocialTypeAndSocialUid(socialType, membername)
+        Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.USER_NOT_FOUND));
         return new AuthMember(member);
     }

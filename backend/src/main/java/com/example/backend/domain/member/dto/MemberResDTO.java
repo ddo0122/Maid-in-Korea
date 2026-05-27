@@ -15,7 +15,7 @@ public class MemberResDTO {
     public record Signup(
             String accessToken,
             String tokenType
-    ){}
+    ) {}
 
     @Builder
     public record Login(

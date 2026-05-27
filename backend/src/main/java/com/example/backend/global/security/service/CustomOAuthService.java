@@ -22,7 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CustomOAuthService extends DefaultOAuth2UserService {
 
-    private final MemberRepository userRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public OAuth2User loadUser(
@@ -46,22 +46,30 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
 
         // OAuth 공통 정보 DTO로 매핑
         OAuthDTO dto;
+        String email;
+        String name;
         switch (providerId) {
             case KAKAO -> {
-                String email = attributes.get("email").toString();
-                String name = profile.get("nickname").toString();
+                email = attributes.get("email").toString();
+                name = profile.get("nickname").toString();
                 dto = new KakaoDTO(socialUid, email, name);
             }
             default -> throw new MemberException(MemberErrorCode.NOT_SUPPORT_SOCIAL_PROVIDER);
         }
 
         // DB 저장 : 있다면 그 데이터 가져오고 없으면 새로 저장
-        Member member = userRepository.findBySocialTypeAndSocialUid(providerId, socialUid)
-                .orElseGet(() -> {
-                    Member newMember = MemberConverter.toMember(dto);
-                    userRepository.save(newMember);
-                    return newMember;
-                });
+        Member member = memberRepository.findBySocialTypeAndSocialUid(providerId, socialUid)
+                .orElseGet(() -> memberRepository.findByEmail(email)
+                        .map(existingMember -> {
+                            existingMember.linkSocialAccount(providerId, socialUid);
+                            return existingMember;
+                        })
+                        .orElseGet(() -> {
+                            Member newMember = MemberConverter.toMember(dto);
+                            memberRepository.save(newMember);
+                            return newMember;
+                        })
+                );
         return new OAuthMember(member, oAuthUser.getAttributes());
     }
 }

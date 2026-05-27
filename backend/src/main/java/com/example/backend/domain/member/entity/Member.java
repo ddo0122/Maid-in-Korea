@@ -1,13 +1,11 @@
 package com.example.backend.domain.member.entity;
 
 import com.example.backend.domain.member.enums.Gender;
+import com.example.backend.domain.member.enums.Role;
 import com.example.backend.domain.member.enums.SocialType;
 import com.example.backend.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -24,7 +22,7 @@ public class Member extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false)
@@ -37,6 +35,11 @@ public class Member extends BaseEntity {
 
     @Column(name = "social_uid")
     private String socialUid;
+
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private Role role = Role.USER;
 
     @Column(name = "gender", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -55,4 +58,12 @@ public class Member extends BaseEntity {
     @Column(name = "point", nullable = false)
     private Integer point;
 
+
+    public void linkSocialAccount(
+            SocialType socialType,
+            String socialUid
+    ) {
+        this.socialType = socialType;
+        this.socialUid = socialUid;
+    }
 }
