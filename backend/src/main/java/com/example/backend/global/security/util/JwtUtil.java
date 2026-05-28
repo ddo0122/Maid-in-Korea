@@ -111,7 +111,6 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .subject(member.getMember().getId().toString()) // User Uid를 Subject로
-                .claim("email", member.getMember().getEmail())
                 .claim("role", authorities)
                 .issuedAt(Date.from(now)) // 언제 발급한지
                 .expiration(Date.from(now.plus(expiration))) // 언제까지 유효한지
