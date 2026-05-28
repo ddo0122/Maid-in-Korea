@@ -7,8 +7,7 @@ public class MemberResDTO {
     @Builder
     public record MemberInfo(
             String name,
-            String email,
-            int point
+            String email
     ){}
 
     @Builder
