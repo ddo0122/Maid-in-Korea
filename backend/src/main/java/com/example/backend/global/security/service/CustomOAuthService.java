@@ -62,6 +62,7 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
                 .orElseGet(() -> memberRepository.findByEmail(email)
                         .map(existingMember -> {
                             existingMember.linkSocialAccount(providerId, socialUid);
+                            memberRepository.save(existingMember);
                             return existingMember;
                         })
                         .orElseGet(() -> {
