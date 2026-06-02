@@ -20,11 +20,11 @@ public class MemberReqDTO {
 
     public record SignupInfo(
 
-            @NotNull(message = "유저 이름은 필수 입니다.")
+            @NotBlank(message = "유저 이름은 필수 입니다.")
             String name,
 
             @Email
-            @NotNull(message = "유저 이메일은 필수 입니다.")
+            @NotBlank(message = "유저 이메일은 필수 입니다.")
             String email,
 
             @NotBlank
@@ -35,13 +35,26 @@ public class MemberReqDTO {
             @NotNull(message = "유저 성별은 필수 입니다.")
             Gender gender,
 
-            @NotNull(message = "유저 생년월일은 필수 입니다.")
+            @NotBlank(message = "유저 생년월일은 필수 입니다.")
             String birth,
 
-            @NotNull(message = "유저 주소는 필수 입니다.")
+            @NotBlank(message = "유저 주소는 필수 입니다.")
             String address,
 
-            @NotNull(message = "유저 상세 주소는 필수 입니다.")
+            @NotBlank(message = "유저 상세 주소는 필수 입니다.")
             String detailAddress
     ){}
+
+    public record UpdateInfo(
+            String name,
+
+            @Email
+            String email,
+
+            String birth,
+
+            String address,
+
+            String detailAddress
+    ) {}
 }

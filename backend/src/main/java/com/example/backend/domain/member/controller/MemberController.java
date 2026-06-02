@@ -19,7 +19,6 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    // 토큰을 매개변수로 하는 인증로직
     @GetMapping("/v2/users/me")
     public ApiResponse<MemberResDTO.MemberInfo> getUserInfo(
             @AuthenticationPrincipal AuthMember member
@@ -28,7 +27,26 @@ public class MemberController {
         return ApiResponse.onSuccess(code, memberService.getMemberInfo(member));
     }
 
-    @PostMapping("login")
+    @PatchMapping("/v1/users/update")
+    public ApiResponse<Void> updateUserInfo(
+            @AuthenticationPrincipal AuthMember member,
+            @RequestBody @Valid MemberReqDTO.UpdateInfo dto
+    ) {
+        BaseSuccessCode code = MemberSuccessCode.OK;
+        memberService.update(member, dto);
+        return ApiResponse.onSuccess(code, null);
+    }
+
+    @DeleteMapping("/v1/users/delete")
+    public ApiResponse<Void> deleteUserInfo(
+            @AuthenticationPrincipal AuthMember member
+    ) {
+        BaseSuccessCode code = MemberSuccessCode.OK;
+        memberService.delete(member);
+        return ApiResponse.onSuccess(code, null);
+    }
+
+    @PostMapping("/login")
     public ApiResponse<MemberResDTO.Login> login(
             @RequestBody @Valid MemberReqDTO.Login dto
     ) {

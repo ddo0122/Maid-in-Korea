@@ -39,7 +39,7 @@ public class MemberService {
     public MemberResDTO.Login login(
             MemberReqDTO.Login dto
     ) {
-        Member member = memberRepository.findByEmail(dto.email())
+        Member member = memberRepository.findByEmailAndDeletedAtIsNull(dto.email())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(dto.password(), member.getPassword())) {
@@ -56,7 +56,7 @@ public class MemberService {
             MemberReqDTO.SignupInfo dto
     ) {
         // Email 중복 확인 로직
-        if(memberRepository.existsByEmail(dto.email())) {
+        if(memberRepository.existsByEmailAndDeletedAtIsNull(dto.email())) {
             throw new MemberException(MemberErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
@@ -80,7 +80,7 @@ public class MemberService {
     public MemberResDTO.Login maidLogin(
             MemberReqDTO.Login dto
     ) {
-        Member member = memberRepository.findByEmail(dto.email())
+        Member member = memberRepository.findByEmailAndDeletedAtIsNull(dto.email())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(dto.password(), member.getPassword())) {
@@ -103,7 +103,7 @@ public class MemberService {
             MemberReqDTO.SignupInfo dto
     ) {
         // Email 중복 확인 로직
-        if(memberRepository.existsByEmail(dto.email())) {
+        if(memberRepository.existsByEmailAndDeletedAtIsNull(dto.email())) {
             throw new MemberException(MemberErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
@@ -125,7 +125,45 @@ public class MemberService {
         return MemberConverter.toSignup(accessToken);
     }
 
-    // 메이드 로그인
+    @Transactional
+    public void update(
+            AuthMember authMember,
+            MemberReqDTO.UpdateInfo dto
+    ) {
+        Long memberId = authMember.getMember().getId();
 
+        Member member = memberRepository.findByIdAndDeletedAtIsNull(memberId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.USER_NOT_FOUND));
+
+        if (
+                dto.email() != null
+                && !dto.email().isBlank()
+                && !member.getEmail().equals(dto.email())
+                && memberRepository.existsByEmailAndDeletedAtIsNull(dto.email())
+        ) {
+            throw new MemberException(MemberErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+        memberRepository.updateMemberInfo(
+                memberId,
+                dto.name(),
+                dto.email(),
+                dto.birth(),
+                dto.address(),
+                dto.detailAddress()
+        );
+    }
+
+    @Transactional
+    public void delete(
+            AuthMember authMember
+    ) {
+        Long memberId = authMember.getMember().getId();
+
+        if(!memberRepository.existsById(memberId)) {
+            throw new MemberException(MemberErrorCode.USER_NOT_FOUND);
+        }
+
+        memberRepository.deleteMember(memberId);
+    }
 
 }

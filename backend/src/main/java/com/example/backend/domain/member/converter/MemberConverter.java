@@ -16,6 +16,9 @@ public class MemberConverter {
         return MemberResDTO.MemberInfo.builder()
                 .name(member.getName())
                 .email(member.getEmail())
+                .birth(member.getBirth())
+                .address(member.getAddress())
+                .detailAddress(member.getDetailAddress())
                 .build();
     }
 

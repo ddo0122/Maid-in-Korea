@@ -7,7 +7,10 @@ public class MemberResDTO {
     @Builder
     public record MemberInfo(
             String name,
-            String email
+            String email,
+            String birth,
+            String address,
+            String detailAddress
     ){}
 
     @Builder

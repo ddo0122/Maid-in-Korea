@@ -58,8 +58,8 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
         }
 
         // DB 저장 : 있다면 그 데이터 가져오고 없으면 새로 저장
-        Member member = memberRepository.findBySocialTypeAndSocialUid(providerId, socialUid)
-                .orElseGet(() -> memberRepository.findByEmail(email)
+        Member member = memberRepository.findBySocialTypeAndSocialUidAndDeletedAtIsNull(providerId, socialUid)
+                .orElseGet(() -> memberRepository.findByEmailAndDeletedAtIsNull(email)
                         .map(existingMember -> {
                             existingMember.linkSocialAccount(providerId, socialUid);
                             memberRepository.save(existingMember);
