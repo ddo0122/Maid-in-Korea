@@ -6,6 +6,7 @@ type AuthResponse = {
   message: string;
   result: {
     accessToken: string;
+    refreshToken: string;
     tokenType: string;
   };
 };
@@ -17,6 +18,9 @@ type MemberInfoResponse = {
   result: {
     name: string;
     email: string;
+    birth: string;
+    address: string;
+    detailAddress: string;
   };
 };
 
@@ -44,25 +48,27 @@ export type LoginRequest = {
 };
 
 export async function signup(payload: SignupRequest) {
-  const response = await fetch(`${API_BASE_URL}/auth/sign-up`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const data: AuthResponse = await response.json();
-
-  if (!response.ok || !data.isSuccess) {
-    throw new Error(data.message || "회원가입에 실패했습니다.");
-  }
-
-  return data.result;
+  return requestAuth("/auth/sign-up", payload, "회원가입에 실패했습니다.");
 }
 
 export async function login(payload: LoginRequest) {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+  return requestAuth("/auth/login", payload, "로그인에 실패했습니다.");
+}
+
+export async function maidSignup(payload: SignupRequest) {
+  return requestAuth("/api/maids/signup", payload, "회원가입에 실패했습니다.");
+}
+
+export async function maidLogin(payload: LoginRequest) {
+  return requestAuth("/api/maids/login", payload, "로그인에 실패했습니다.");
+}
+
+async function requestAuth(
+  path: string,
+  payload: SignupRequest | LoginRequest,
+  fallbackMessage: string,
+) {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -73,14 +79,22 @@ export async function login(payload: LoginRequest) {
   const data: AuthResponse = await response.json();
 
   if (!response.ok || !data.isSuccess) {
-    throw new Error(data.message || "로그인에 실패했습니다.");
+    throw new Error(data.message || fallbackMessage);
   }
 
   return data.result;
 }
 
-export function saveAuthToken(tokenType: string, accessToken: string) {
+export function saveAuthToken(
+  tokenType: string,
+  accessToken: string,
+  refreshToken?: string,
+) {
   localStorage.setItem("accessToken", `${tokenType} ${accessToken}`);
+
+  if (refreshToken) {
+    localStorage.setItem("refreshToken", refreshToken);
+  }
 }
 
 export function getAuthToken() {
@@ -89,6 +103,7 @@ export function getAuthToken() {
 
 export function removeAuthToken() {
   localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
 }
 
 export function getTokenPayload(): TokenPayload | null {
@@ -127,7 +142,7 @@ export async function getMe() {
     throw new Error("로그인이 필요합니다.");
   }
 
-  const response = await fetch(`${API_BASE_URL}/auth/v2/users/me`, {
+  const response = await fetch(`${API_BASE_URL}/auth/v2/members/me`, {
     headers: {
       Authorization: accessToken,
     },

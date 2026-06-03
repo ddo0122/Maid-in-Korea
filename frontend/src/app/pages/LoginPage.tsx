@@ -18,7 +18,7 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 
-import { login, saveAuthToken } from "../api/authApi";
+import { login, maidLogin, saveAuthToken } from "../api/authApi";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -38,16 +38,27 @@ export function LoginPage() {
         password: userPassword,
       });
 
-      saveAuthToken(result.tokenType, result.accessToken);
+      saveAuthToken(result.tokenType, result.accessToken, result.refreshToken);
       navigate(from, { replace: true });
     } catch (error) {
       alert(error instanceof Error ? error.message : "로그인에 실패했습니다.");
     }
   };
 
-  const handleMaidLogin = (e: React.FormEvent) => {
+  const handleMaidLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/maid/profile");
+
+    try {
+      const result = await maidLogin({
+        email: maidEmail,
+        password: maidPassword,
+      });
+
+      saveAuthToken(result.tokenType, result.accessToken, result.refreshToken);
+      navigate("/maid/profile", { replace: true });
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "로그인에 실패했습니다.");
+    }
   };
 
   return (

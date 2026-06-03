@@ -28,6 +28,11 @@ public enum MaidErrorCode implements BaseErrorCode {
             "MAID404_1",
             "해당 사용자를 찾을 수 없습니다."
     ),
+    PROFILE_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "MAID404_2",
+            "해당 프로필을 찾을 수 없습니다."
+    ),
     FORBIDDEN_MAID_ONLY(
             HttpStatus.FORBIDDEN,
             "MAID403_1",

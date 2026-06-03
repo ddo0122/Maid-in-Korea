@@ -19,7 +19,7 @@ import {
 } from "../components/ui/tabs";
 import { Checkbox } from "../components/ui/checkbox";
 
-import { saveAuthToken, signup } from "../api/authApi";
+import { maidSignup, saveAuthToken, signup } from "../api/authApi";
 
 export function SignupPage() {
   const navigate = useNavigate();
@@ -60,7 +60,7 @@ export function SignupPage() {
         detailAddress: userAddressDetail,
       });
 
-      saveAuthToken(result.tokenType, result.accessToken);
+      saveAuthToken(result.tokenType, result.accessToken, result.refreshToken);
       navigate("/");
     } catch (error) {
       alert(
@@ -69,13 +69,32 @@ export function SignupPage() {
     }
   };
 
-  const handleMaidSignup = (e: React.FormEvent) => {
+  const handleMaidSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (maidPassword !== maidConfirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
-    navigate("/login");
+
+    try {
+      const result = await maidSignup({
+        name: maidName,
+        email: maidEmail,
+        password: maidPassword,
+        gender: maidGender as "MALE" | "FEMALE" | "NONE",
+        birth: maidBirthDate,
+        address: maidAddress,
+        detailAddress: maidAddressDetail,
+      });
+
+      saveAuthToken(result.tokenType, result.accessToken, result.refreshToken);
+      navigate("/maid/profile");
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : "회원가입에 실패했습니다.",
+      );
+    }
   };
 
   return (
@@ -237,9 +256,9 @@ export function SignupPage() {
                     required
                   >
                     <option value="">성별을 선택하세요</option>
-                    <option value="female">여성</option>
-                    <option value="male">남성</option>
-                    <option value="other">기타</option>
+                    <option value="FEMALE">여성</option>
+                    <option value="MALE">남성</option>
+                    <option value="NONE">선택 안 함</option>
                   </select>
                 </div>
                 <div className="space-y-2">

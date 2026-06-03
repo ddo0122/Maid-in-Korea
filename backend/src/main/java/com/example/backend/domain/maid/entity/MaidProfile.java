@@ -3,6 +3,7 @@ package com.example.backend.domain.maid.entity;
 import com.example.backend.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "maid_profile")
@@ -31,9 +33,43 @@ public class MaidProfile extends BaseEntity {
     @Column
     private String description;
 
-    @Column(nullable = false)
+    @Column
     private String serviceArea;
+
+    @Column
+    private String instagram;
+
+    @Column
+    private String x;
 
     @Column(nullable = false)
     private Boolean isActive;
+
+    public void update(
+            String name,
+            String description,
+            String serviceArea,
+            String instagram,
+            String x
+    ) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (description != null) {
+            this.description = description;
+        }
+        if (serviceArea != null) {
+            this.serviceArea = serviceArea;
+        }
+        if (instagram != null) {
+            this.instagram = instagram;
+        }
+        if (x != null) {
+            this.x = x;
+        }
+    }
+
+    public void deactivate() {
+        this.isActive = false;
+    }
 }
