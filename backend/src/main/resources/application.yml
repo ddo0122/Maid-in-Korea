@@ -28,6 +28,16 @@ spring:
     username: ${DB_USER} # MySQL ?? ??
     password: ${DB_PW} # MySQL ????
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      timeout: 2000ms
+      repositories:
+        enabled: false
+
   jpa:
     database: mysql # ??? ?????? ?? ?? (MySQL)
     database-platform: org.hibernate.dialect.MySQLDialect # Hibernate?? ??? MySQL ??(dialect) ??
@@ -43,3 +53,4 @@ jwt:
     secretKey: ${JWT_SECRET_KEY}
     expiration:
       access: 1800000
+      refresh: 1209600000

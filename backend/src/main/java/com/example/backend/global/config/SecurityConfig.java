@@ -6,6 +6,7 @@ import com.example.backend.global.security.handler.CustomEntryPoint;
 import com.example.backend.global.security.handler.OAuthSuccessHandler;
 import com.example.backend.global.security.service.CustomOAuthService;
 import com.example.backend.global.security.service.CustomMemberDetailsService;
+import com.example.backend.global.security.service.TokenService;
 import com.example.backend.global.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -28,10 +29,12 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final CustomMemberDetailsService customMemberDetailsService;
     private final CustomOAuthService customOAuthService;
+    private final TokenService tokenService;
 
     private final String [] publicUris = {
             "/auth/sign-up",
             "/auth/login",
+            "/auth/reissue",
             "/oauth/authorize/**",
             "/oauth/callback/**",
             "/login/oauth2/code/**",
@@ -137,6 +140,6 @@ public class SecurityConfig {
 
     @Bean
     public OAuthSuccessHandler oAuthSuccessHandler() {
-        return new OAuthSuccessHandler(jwtUtil);
+        return new OAuthSuccessHandler(tokenService);
     }
 }

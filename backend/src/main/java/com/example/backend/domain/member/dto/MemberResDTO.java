@@ -16,12 +16,14 @@ public class MemberResDTO {
     @Builder
     public record Signup(
             String accessToken,
+            String refreshToken,
             String tokenType
     ) {}
 
     @Builder
     public record Login(
             String accessToken,
+            String refreshToken,
             String tokenType
     ) {}
 

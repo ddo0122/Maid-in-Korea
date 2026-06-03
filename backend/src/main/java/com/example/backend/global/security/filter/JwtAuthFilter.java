@@ -1,6 +1,5 @@
 package com.example.backend.global.security.filter;
 
-import com.example.backend.domain.member.enums.SocialType;
 import com.example.backend.global.apiPayload.ApiResponse;
 import com.example.backend.global.apiPayload.code.BaseErrorCode;
 import com.example.backend.global.apiPayload.code.GeneralErrorCode;
@@ -49,7 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             token = token.replace("Bearer ", "");
 
             // AccessToken 검증하기: 올바를 토큰의 경우
-            if(jwtUtil.isValid(token)){
+            if(jwtUtil.isValid(token, JwtUtil.ACCESS_TOKEN_TYPE)){
 
                 // JWT 토큰에서 유저 ID 가져오기
                 Long memberId = jwtUtil.getMemberId(token);

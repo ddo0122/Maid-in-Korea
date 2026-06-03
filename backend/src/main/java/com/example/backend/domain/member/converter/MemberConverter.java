@@ -7,6 +7,7 @@ import com.example.backend.domain.member.entity.Member;
 import com.example.backend.domain.member.enums.Gender;
 import com.example.backend.domain.member.enums.Role;
 import com.example.backend.global.security.dto.OAuthDTO;
+import com.example.backend.global.security.dto.TokenDTO;
 
 public class MemberConverter {
 
@@ -56,20 +57,22 @@ public class MemberConverter {
     }
 
     public static MemberResDTO.Signup toSignup(
-            String accessToken
+            TokenDTO.TokenPair tokenPair
     ) {
         return MemberResDTO.Signup.builder()
-                .accessToken(accessToken)
-                .tokenType("Bearer")
+                .accessToken(tokenPair.accessToken())
+                .refreshToken(tokenPair.refreshToken())
+                .tokenType(tokenPair.tokenType())
                 .build();
     }
 
     public static MemberResDTO.Login toLogin(
-            String accessToken
+            TokenDTO.TokenPair tokenPair
     ) {
         return MemberResDTO.Login.builder()
-                .accessToken(accessToken)
-                .tokenType("Bearer")
+                .accessToken(tokenPair.accessToken())
+                .refreshToken(tokenPair.refreshToken())
+                .tokenType(tokenPair.tokenType())
                 .build();
     }
 

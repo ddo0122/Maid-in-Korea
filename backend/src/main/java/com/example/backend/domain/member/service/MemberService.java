@@ -13,8 +13,7 @@ import com.example.backend.domain.member.exception.MemberException;
 import com.example.backend.domain.member.exception.code.MemberErrorCode;
 import com.example.backend.domain.member.repository.MemberRepository;
 import com.example.backend.global.security.entity.AuthMember;
-import com.example.backend.global.security.entity.OAuthMember;
-import com.example.backend.global.security.util.JwtUtil;
+import com.example.backend.global.security.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final TokenService tokenService;
     private final MaidRepository maidRepository;
 
     public MemberResDTO.MemberInfo getMemberInfo(
@@ -46,9 +45,7 @@ public class MemberService {
             throw new MemberException(MemberErrorCode.INVALID_PASSWORD);
         }
 
-        String accessToken = jwtUtil.createAccessToken(new AuthMember(member));
-
-        return MemberConverter.toLogin(accessToken);
+        return MemberConverter.toLogin(tokenService.issue(member));
     }
 
     @Transactional
@@ -69,11 +66,8 @@ public class MemberService {
         // DB에 User 정보 저장
         memberRepository.save(member);
 
-        // 액세스 토큰 발급
-        String accessToken = jwtUtil.createAccessToken(new AuthMember(member));
-
         // 확인용 UserResDTO return
-        return MemberConverter.toSignup(accessToken);
+        return MemberConverter.toSignup(tokenService.issue(member));
     }
 
     // 메이드 로그인
@@ -91,9 +85,7 @@ public class MemberService {
             throw new MaidException(MaidErrorCode.FORBIDDEN_MAID_ONLY);
         }
 
-        String accessToken = jwtUtil.createAccessToken(new AuthMember(member));
-
-        return MemberConverter.toLogin(accessToken);
+        return MemberConverter.toLogin(tokenService.issue(member));
     }
 
 
@@ -118,11 +110,8 @@ public class MemberService {
 
         maidRepository.save(MaidConverter.toMaid(member));
 
-        // 액세스 토큰 발급
-        String accessToken = jwtUtil.createAccessToken(new AuthMember(member));
-
         // 확인용 UserResDTO return
-        return MemberConverter.toSignup(accessToken);
+        return MemberConverter.toSignup(tokenService.issue(member));
     }
 
     @Transactional

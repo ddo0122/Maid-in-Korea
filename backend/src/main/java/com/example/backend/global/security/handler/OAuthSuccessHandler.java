@@ -5,9 +5,8 @@ import com.example.backend.domain.member.dto.MemberResDTO;
 import com.example.backend.domain.member.exception.code.MemberSuccessCode;
 import com.example.backend.global.apiPayload.ApiResponse;
 import com.example.backend.global.apiPayload.code.BaseSuccessCode;
-import com.example.backend.global.security.entity.AuthMember;
 import com.example.backend.global.security.entity.OAuthMember;
-import com.example.backend.global.security.util.JwtUtil;
+import com.example.backend.global.security.service.TokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,7 +21,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final JwtUtil jwtUtil;
+    private final TokenService tokenService;
 
     @Override
     public void onAuthenticationSuccess(
@@ -41,13 +40,10 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         // 인증 객체 컨테이너에서 OAuth 인증 객체 가져오기
         OAuthMember member = (OAuthMember) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        // 토큰 제작을 위해 OAuth 인증 객체에서 Member 추출 -> AuthMember 제작
-        String accessToken = jwtUtil.createAccessToken(new AuthMember(member.getMember()));
-
         // 응답 통일 객체 래핑
         ApiResponse<MemberResDTO.Login> responseBody = ApiResponse.onSuccess(
                 code,
-                MemberConverter.toLogin(accessToken)
+                MemberConverter.toLogin(tokenService.issue(member.getMember()))
         );
 
         // 응답 출력
