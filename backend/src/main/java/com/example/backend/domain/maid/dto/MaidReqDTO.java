@@ -3,7 +3,6 @@ package com.example.backend.domain.maid.dto;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 public class MaidReqDTO {
 
@@ -38,5 +37,11 @@ public class MaidReqDTO {
         public boolean isNameValid() {
             return name == null || !name.isBlank();
         }
+
+        @AssertTrue(message = "설명은 공백일 수 없습니다.")
+        public boolean isDescriptionValid() {
+            return description == null || !description.isBlank();
+        }
+
     }
 }

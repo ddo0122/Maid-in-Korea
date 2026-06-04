@@ -45,7 +45,7 @@ public class MaidProfile extends BaseEntity {
     @Column(nullable = false)
     private Boolean isActive;
 
-    public void update(
+    public void patch(
             String name,
             String description,
             String serviceArea,

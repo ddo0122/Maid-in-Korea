@@ -56,7 +56,7 @@ public class MaidService {
         MaidProfile profile = maidProfileRepository.findFirstByMaidId(maid.getId())
                 .orElseThrow(() -> new MaidException(MaidErrorCode.PROFILE_NOT_FOUND));
 
-        maidProfileRepository.save(MaidConverter.updateProfile(profile, dto));
+        MaidConverter.patchProfile(profile, dto);
     }
 
     @Transactional

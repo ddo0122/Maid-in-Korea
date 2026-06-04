@@ -53,11 +53,11 @@ public class MaidConverter {
                 .build();
     }
 
-    public static MaidProfile updateProfile(
+    public static MaidProfile patchProfile(
             MaidProfile profile,
             MaidReqDTO.UpdateInfo dto
     ) {
-        profile.update(
+        profile.patch(
                 dto.name(),
                 dto.description(),
                 dto.serviceArea(),
