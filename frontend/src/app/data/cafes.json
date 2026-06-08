@@ -47,18 +47,24 @@
       { "date": "2026-05-16", "maids": ["레이", "사쿠라", "미유"] },
       { "date": "2026-05-17", "maids": ["나나", "유이", "레이"] }
     ],
-    "maids": [
+    "maidFeeds": [
       {
         "id": 1,
         "maidName": "사쿠라",
-        "maidDescription": "안녕하세요 사쿠라 입니다",
-        "maidAvatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100"
+        "maidAvatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100",
+        "content": "오늘도 즐거운 하루였어요! 많이 방문해주세요 💕",
+        "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400",
+        "timestamp": "2시간 전",
+        "likes": 145
       },
       {
         "id": 2,
         "maidName": "미유",
-        "maidDescription": "안녕하세요 미유 입니다",
-        "maidAvatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100"
+        "maidAvatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100",
+        "content": "새로운 메뉴 나왔어요! 꼭 드셔보세요 🍰",
+        "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400",
+        "timestamp": "5시간 전",
+        "likes": 203
       }
     ]
   },

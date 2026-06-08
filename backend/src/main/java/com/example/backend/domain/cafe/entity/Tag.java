@@ -3,12 +3,9 @@ package com.example.backend.domain.cafe.entity;
 import com.example.backend.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,25 +19,15 @@ import org.hibernate.annotations.SQLRestriction;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "menu")
-@SQLDelete(sql = "UPDATE menu SET deleted_at = current_timestamp WHERE id = ?")
+@Table(name = "tag")
+@SQLDelete(sql = "UPDATE tag SET deleted_at = current_timestamp WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
-public class Menu extends BaseEntity {
+public class Tag extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cafe_id", nullable = false)
-    private Cafe cafe;
-
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
-
-    @Column(nullable = false)
-    private Integer price;
-
-    @Column(columnDefinition = "TEXT")
-    private String image;
 }

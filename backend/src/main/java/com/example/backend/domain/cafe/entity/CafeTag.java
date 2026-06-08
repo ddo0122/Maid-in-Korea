@@ -1,7 +1,6 @@
 package com.example.backend.domain.cafe.entity;
 
 import com.example.backend.global.common.BaseEntity;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,10 +22,15 @@ import org.hibernate.annotations.SQLRestriction;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "menu")
-@SQLDelete(sql = "UPDATE menu SET deleted_at = current_timestamp WHERE id = ?")
+@Table(
+        name = "cafe_tag",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"cafe_id", "tag_id"})
+        }
+)
+@SQLDelete(sql = "UPDATE cafe_tag SET deleted_at = current_timestamp WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
-public class Menu extends BaseEntity {
+public class CafeTag extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,12 +40,7 @@ public class Menu extends BaseEntity {
     @JoinColumn(name = "cafe_id", nullable = false)
     private Cafe cafe;
 
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private Integer price;
-
-    @Column(columnDefinition = "TEXT")
-    private String image;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tag_id", nullable = false)
+    private Tag tag;
 }

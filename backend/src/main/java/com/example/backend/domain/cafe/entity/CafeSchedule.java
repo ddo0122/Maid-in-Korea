@@ -9,7 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,30 +19,37 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "menu")
-@SQLDelete(sql = "UPDATE menu SET deleted_at = current_timestamp WHERE id = ?")
+@Table(
+        name = "cafe_schedule",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"monthly_schedule_id", "work_date"})
+        }
+)
+@SQLDelete(sql = "UPDATE cafe_schedule SET deleted_at = current_timestamp WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
-public class Menu extends BaseEntity {
+public class CafeSchedule extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cafe_id", nullable = false)
-    private Cafe cafe;
+    @JoinColumn(name = "monthly_schedule_id", nullable = false)
+    private CafeMonthlySchedule monthlySchedule;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(name = "work_date", nullable = false)
+    private LocalDate workDate;
 
-    @Column(nullable = false)
-    private Integer price;
-
-    @Column(columnDefinition = "TEXT")
-    private String image;
+    @Builder.Default
+    @OneToMany(mappedBy = "cafeSchedule")
+    private List<CafeScheduleMaid> cafeScheduleMaids = new ArrayList<>();
 }

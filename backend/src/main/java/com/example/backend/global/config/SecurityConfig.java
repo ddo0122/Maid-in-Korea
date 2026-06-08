@@ -39,7 +39,9 @@ public class SecurityConfig {
             "/oauth/callback/**",
             "/login/oauth2/code/**",
             "/api/maids/login",
-            "/api/maids/signup"
+            "/api/maids/signup",
+            "/api/cafes/v1/home",
+            "/api/cafes/v1/*"
     };
 
     private final String [] swaggerUris = {
