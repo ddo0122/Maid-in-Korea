@@ -1,10 +1,12 @@
 package com.example.backend.global.security.service;
 
+import com.example.backend.domain.admin.entity.Admin;
 import com.example.backend.domain.member.entity.Member;
 import com.example.backend.domain.member.exception.MemberException;
 import com.example.backend.domain.member.exception.code.MemberErrorCode;
 import com.example.backend.domain.member.repository.MemberRepository;
 import com.example.backend.global.security.dto.TokenDTO;
+import com.example.backend.global.security.entity.AuthAdmin;
 import com.example.backend.global.security.entity.AuthMember;
 import com.example.backend.global.security.exception.TokenException;
 import com.example.backend.global.security.exception.code.TokenErrorCode;
@@ -25,6 +27,7 @@ import java.util.List;
 public class TokenService {
 
     private static final String REFRESH_TOKEN_KEY_PREFIX = "refresh:";
+    private static final String ADMIN_REFRESH_TOKEN_KEY_PREFIX = "admin-refresh:";
     private static final DefaultRedisScript<Long> CONSUME_REFRESH_TOKEN_SCRIPT =
             new DefaultRedisScript<>("""
                     if redis.call('get', KEYS[1]) == ARGV[1] then
@@ -44,6 +47,24 @@ public class TokenService {
 
         redisTemplate.opsForValue().set(
                 getRefreshTokenKey(member.getId()),
+                hash(refreshToken),
+                jwtUtil.getRefreshExpiration()
+        );
+
+        return TokenDTO.TokenPair.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .tokenType("Bearer")
+                .build();
+    }
+
+    public TokenDTO.TokenPair issue(Admin admin) {
+        AuthAdmin authAdmin = new AuthAdmin(admin);
+        String accessToken = jwtUtil.createAccessToken(authAdmin);
+        String refreshToken = jwtUtil.createRefreshToken(authAdmin);
+
+        redisTemplate.opsForValue().set(
+                getAdminRefreshTokenKey(admin.getId()),
                 hash(refreshToken),
                 jwtUtil.getRefreshExpiration()
         );
@@ -79,6 +100,10 @@ public class TokenService {
 
     private String getRefreshTokenKey(Long memberId) {
         return REFRESH_TOKEN_KEY_PREFIX + memberId;
+    }
+
+    private String getAdminRefreshTokenKey(Long adminId) {
+        return ADMIN_REFRESH_TOKEN_KEY_PREFIX + adminId;
     }
 
     private String hash(String token) {

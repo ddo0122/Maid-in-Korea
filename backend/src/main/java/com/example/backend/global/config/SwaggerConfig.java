@@ -15,7 +15,7 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI swagger() {
-        Info info = new Info().title("UMC10th").description("10기 Swagger").version("0.0.1");
+        Info info = new Info().title("Maid in Korea").description("Maid in Korea Swagger").version("0.0.1");
 
         // JWT 토큰 헤더 방식
         String securityScheme = "JWT TOKEN";

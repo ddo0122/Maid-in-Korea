@@ -75,6 +75,42 @@ public class Cafe extends BaseEntity {
     @Column(name = "regular_closed_days")
     private String regularClosedDays;
 
+    public void patchAdminCafeInfo(
+            String name,
+            String description,
+            String phone,
+            String website,
+            LocalTime defaultOpenTime,
+            LocalTime defaultCloseTime,
+            LocalTime defaultLastOrderTime,
+            String regularClosedDays
+    ) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (description != null) {
+            this.description = description;
+        }
+        if (phone != null) {
+            this.phone = phone;
+        }
+        if (website != null) {
+            this.website = website;
+        }
+        if (defaultOpenTime != null) {
+            this.defaultOpenTime = defaultOpenTime;
+        }
+        if (defaultCloseTime != null) {
+            this.defaultCloseTime = defaultCloseTime;
+        }
+        if (defaultLastOrderTime != null) {
+            this.defaultLastOrderTime = defaultLastOrderTime;
+        }
+        if (regularClosedDays != null) {
+            this.regularClosedDays = regularClosedDays;
+        }
+    }
+
     @Builder.Default
     @OneToMany(mappedBy = "cafe")
     private List<CafeTag> cafeTags = new ArrayList<>();

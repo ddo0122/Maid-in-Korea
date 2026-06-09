@@ -4,6 +4,7 @@ import com.example.backend.global.security.filter.JwtAuthFilter;
 import com.example.backend.global.security.handler.CustomAccessDenied;
 import com.example.backend.global.security.handler.CustomEntryPoint;
 import com.example.backend.global.security.handler.OAuthSuccessHandler;
+import com.example.backend.global.security.service.CustomAdminDetailsService;
 import com.example.backend.global.security.service.CustomOAuthService;
 import com.example.backend.global.security.service.CustomMemberDetailsService;
 import com.example.backend.global.security.service.TokenService;
@@ -27,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final CustomAdminDetailsService customAdminDetailsService;
     private final CustomMemberDetailsService customMemberDetailsService;
     private final CustomOAuthService customOAuthService;
     private final TokenService tokenService;
@@ -40,6 +42,7 @@ public class SecurityConfig {
             "/login/oauth2/code/**",
             "/api/maids/login",
             "/api/maids/signup",
+            "/api/admin/v1/login",
             "/api/cafes/v1/home",
             "/api/cafes/v1/*"
     };
@@ -64,7 +67,7 @@ public class SecurityConfig {
                         .requestMatchers(publicUris).permitAll()
 
                         // 인가 실패 테스트용
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )
@@ -137,7 +140,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthFilter jwtAuthFilter() {
-        return new JwtAuthFilter(jwtUtil, customMemberDetailsService);
+        return new JwtAuthFilter(jwtUtil, customMemberDetailsService, customAdminDetailsService);
     }
 
     @Bean

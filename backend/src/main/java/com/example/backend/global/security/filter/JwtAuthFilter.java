@@ -3,6 +3,7 @@ package com.example.backend.global.security.filter;
 import com.example.backend.global.apiPayload.ApiResponse;
 import com.example.backend.global.apiPayload.code.BaseErrorCode;
 import com.example.backend.global.apiPayload.code.GeneralErrorCode;
+import com.example.backend.global.security.service.CustomAdminDetailsService;
 import com.example.backend.global.security.service.CustomMemberDetailsService;
 import com.example.backend.global.security.util.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -25,6 +26,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomMemberDetailsService customMemberDetailsService;
+    private final CustomAdminDetailsService customAdminDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -50,11 +52,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             // AccessToken 검증하기: 올바를 토큰의 경우
             if(jwtUtil.isValid(token, JwtUtil.ACCESS_TOKEN_TYPE)){
 
-                // JWT 토큰에서 유저 ID 가져오기
-                Long memberId = jwtUtil.getMemberId(token);
+                UserDetails user;
+                String subjectType = jwtUtil.getSubjectType(token);
+                if (JwtUtil.ADMIN_SUBJECT_TYPE.equals(subjectType)) {
+                    Long adminId = jwtUtil.getAdminId(token);
+                    user = customAdminDetailsService.loadUserById(adminId);
+                } else {
+                    Long memberId = jwtUtil.getMemberId(token);
+                    user = customMemberDetailsService.loadUserById(memberId);
+                }
 
-                // 인증 객체 생성: Member ID로 인증 객체 생성
-                UserDetails user = customMemberDetailsService.loadUserById(memberId);
                 Authentication auth = new UsernamePasswordAuthenticationToken(
                         user,
                         null,

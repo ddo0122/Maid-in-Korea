@@ -1,5 +1,6 @@
 package com.example.backend.global.security.util;
 
+import com.example.backend.global.security.entity.AuthAdmin;
 import com.example.backend.global.security.entity.AuthMember;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -20,7 +21,10 @@ public class JwtUtil {
 
     public static final String ACCESS_TOKEN_TYPE = "access";
     public static final String REFRESH_TOKEN_TYPE = "refresh";
+    public static final String MEMBER_SUBJECT_TYPE = "member";
+    public static final String ADMIN_SUBJECT_TYPE = "admin";
     private static final String TOKEN_TYPE_CLAIM = "tokenType";
+    private static final String SUBJECT_TYPE_CLAIM = "subjectType";
 
     private final SecretKey secretKey;
     private final Duration accessExpiration;
@@ -38,12 +42,44 @@ public class JwtUtil {
 
     // AccessToken 생성
     public String createAccessToken(AuthMember member) {
-        return createToken(member, accessExpiration, ACCESS_TOKEN_TYPE);
+        return createToken(
+                member.getMember().getId().toString(),
+                getAuthorities(member),
+                accessExpiration,
+                ACCESS_TOKEN_TYPE,
+                MEMBER_SUBJECT_TYPE
+        );
     }
 
     // RefreshToken 생성
     public String createRefreshToken(AuthMember member) {
-        return createToken(member, refreshExpiration, REFRESH_TOKEN_TYPE);
+        return createToken(
+                member.getMember().getId().toString(),
+                getAuthorities(member),
+                refreshExpiration,
+                REFRESH_TOKEN_TYPE,
+                MEMBER_SUBJECT_TYPE
+        );
+    }
+
+    public String createAccessToken(AuthAdmin admin) {
+        return createToken(
+                admin.getAdmin().getId().toString(),
+                getAuthorities(admin),
+                accessExpiration,
+                ACCESS_TOKEN_TYPE,
+                ADMIN_SUBJECT_TYPE
+        );
+    }
+
+    public String createRefreshToken(AuthAdmin admin) {
+        return createToken(
+                admin.getAdmin().getId().toString(),
+                getAuthorities(admin),
+                refreshExpiration,
+                REFRESH_TOKEN_TYPE,
+                ADMIN_SUBJECT_TYPE
+        );
     }
 
     public Duration getRefreshExpiration() {
@@ -102,6 +138,24 @@ public class JwtUtil {
         }
     }
 
+    public Long getAdminId(String token) {
+        try {
+            return Long.valueOf(getClaims(token).getPayload().getSubject());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String getSubjectType(String token) {
+        try {
+            Claims claims = getClaims(token).getPayload();
+            String subjectType = claims.get(SUBJECT_TYPE_CLAIM, String.class);
+            return subjectType != null ? subjectType : MEMBER_SUBJECT_TYPE;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     /** 토큰 유효성 및 토큰 종류 확인
      * @param token 유효한지 확인할 토큰
      * @param expectedTokenType 확인할 토큰 종류
@@ -117,23 +171,37 @@ public class JwtUtil {
     }
 
     // 토큰 생성
-    private String createToken(AuthMember member, Duration expiration, String tokenType) {
+    private String createToken(
+            String subject,
+            String authorities,
+            Duration expiration,
+            String tokenType,
+            String subjectType
+    ) {
         Instant now = Instant.now();
 
-        // 인가 정보
-        String authorities = member.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
         return Jwts.builder()
-                .subject(member.getMember().getId().toString()) // User Uid를 Subject로
+                .subject(subject)
                 .claim("role", authorities)
                 .claim(TOKEN_TYPE_CLAIM, tokenType)
+                .claim(SUBJECT_TYPE_CLAIM, subjectType)
                 .id(UUID.randomUUID().toString())
                 .issuedAt(Date.from(now)) // 언제 발급한지
                 .expiration(Date.from(now.plus(expiration))) // 언제까지 유효한지
                 .signWith(secretKey)
                 .compact();
+    }
+
+    private String getAuthorities(AuthMember member) {
+        return member.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+    }
+
+    private String getAuthorities(AuthAdmin admin) {
+        return admin.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
     }
 
     // 토큰 정보 가져오기
