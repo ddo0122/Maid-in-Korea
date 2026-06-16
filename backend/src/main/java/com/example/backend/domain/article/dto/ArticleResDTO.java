@@ -15,6 +15,7 @@ public class ArticleResDTO {
     @Builder
     public record Detail(
             Long articleId,
+            Long memberId,
             String name,
             LocalDateTime createAt,
             String title,

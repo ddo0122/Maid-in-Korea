@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
-import { Button } from "../components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,50 +14,183 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { Badge } from "../components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import {
   MapPin,
   Clock,
-  Heart,
   Phone,
   Globe,
   Calendar,
   Star,
+  Instagram,
 } from "lucide-react";
-import cafes from "../data/cafes.json";
+import {
+  getCafeDetail,
+  type CafeDetail,
+  type CafeSchedule,
+} from "../api/cafeApi";
+
+const CLOSED_LABEL = "영업안함";
+const DEFAULT_CAFE_IMAGE =
+  "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200";
+const DEFAULT_MENU_IMAGE =
+  "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400";
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+function parseLocalDate(date: string) {
+  return new Date(`${date}T00:00:00`);
+}
+
+function formatMonthTitle(date: Date) {
+  return date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+  });
+}
+
+function formatScheduleTime(startTime: string | null, endTime: string | null) {
+  if (!startTime && !endTime) {
+    return "";
+  }
+
+  return `${startTime ?? ""}${startTime && endTime ? " - " : ""}${endTime ?? ""}`;
+}
+
+function buildCalendarDays(monthDate: Date) {
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const firstDate = new Date(year, month, 1);
+  const lastDate = new Date(year, month + 1, 0);
+  const calendarStart = new Date(firstDate);
+  calendarStart.setDate(firstDate.getDate() - firstDate.getDay());
+
+  const totalDays = Math.ceil((firstDate.getDay() + lastDate.getDate()) / 7) * 7;
+
+  return Array.from({ length: totalDays }, (_, index) => {
+    const date = new Date(calendarStart);
+    date.setDate(calendarStart.getDate() + index);
+
+    return {
+      date,
+      dateKey: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+        2,
+        "0",
+      )}-${String(date.getDate()).padStart(2, "0")}`,
+      isCurrentMonth: date.getMonth() === month,
+    };
+  });
+}
 
 export function CafeDetailPage() {
   const { id } = useParams();
-  const [isFavorite, setIsFavorite] = useState(false);
-  const cafeDetail =
-    cafes.find((cafe) => cafe.id === Number(id)) ?? cafes[0];
+  const [cafeDetail, setCafeDetail] = useState<CafeDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+    const cafeId = Number(id);
+
+    async function fetchCafeDetail() {
+      if (!Number.isFinite(cafeId)) {
+        setErrorMessage("잘못된 카페 주소입니다.");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setErrorMessage("");
+        const detail = await getCafeDetail(cafeId);
+
+        if (isMounted) {
+          setCafeDetail(detail);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setErrorMessage(
+            error instanceof Error
+              ? error.message
+              : "카페 상세 정보를 불러오지 못했습니다.",
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    fetchCafeDetail();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  const scheduleByDate = useMemo(() => {
+    return new Map(
+      (cafeDetail?.currentMonthSchedules ?? []).map((schedule) => [
+        schedule.date,
+        schedule,
+      ]),
+    );
+  }, [cafeDetail]);
+
+  const calendarMonth = useMemo(() => {
+    const firstSchedule = cafeDetail?.currentMonthSchedules[0];
+    return firstSchedule ? parseLocalDate(firstSchedule.date) : new Date();
+  }, [cafeDetail]);
+
+  const calendarDays = useMemo(
+    () => buildCalendarDays(calendarMonth),
+    [calendarMonth],
+  );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-24 text-center text-gray-500">
+        카페 상세 정보를 불러오는 중입니다.
+      </div>
+    );
+  }
+
+  if (errorMessage || !cafeDetail) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-24 text-center text-red-600">
+        {errorMessage || "카페 상세 정보를 불러오지 못했습니다."}
+      </div>
+    );
+  }
+
+  const isOpen = cafeDetail.operatingHour !== CLOSED_LABEL;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="relative h-96">
         <img
-          src={cafeDetail.coverImage}
+          src={cafeDetail.coverImage || DEFAULT_CAFE_IMAGE}
           alt={cafeDetail.name}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
           <div className="container mx-auto">
-            <h1 className="text-5xl font-bold mb-2">{cafeDetail.name}</h1>
-            <div className="flex items-center gap-4 text-lg">
+            <h1 className="mb-2 text-5xl font-bold">{cafeDetail.name}</h1>
+            <div className="flex flex-wrap items-center gap-4 text-lg">
               <span className="flex items-center gap-2">
-                <MapPin className="w-5 h-5" />
+                <MapPin className="h-5 w-5" />
                 {cafeDetail.location}
               </span>
               <span className="flex items-center gap-2">
-                <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                 {cafeDetail.rating}
               </span>
               <Badge
-                variant={cafeDetail.isOpen ? "default" : "destructive"}
+                variant={isOpen ? "default" : "destructive"}
                 className="text-sm"
               >
-                {cafeDetail.isOpen ? "영업중" : "영업종료"}
+                {cafeDetail.operatingHour}
               </Badge>
             </div>
           </div>
@@ -66,8 +198,7 @@ export function CafeDetailPage() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
+        <div className="mx-auto max-w-5xl">
             <Card className="mb-6">
               <CardHeader>
                 <CardTitle>소개</CardTitle>
@@ -78,15 +209,15 @@ export function CafeDetailPage() {
                 </p>
                 <div className="mt-4 space-y-2">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-gray-500" />
-                    <span>{cafeDetail.openingHours || "운영 시간 미등록"}</span>
+                    <Clock className="h-5 w-5 text-gray-500" />
+                    <span>{cafeDetail.operatingHour || "운영 시간 미등록"}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Phone className="w-5 h-5 text-gray-500" />
+                    <Phone className="h-5 w-5 text-gray-500" />
                     <span>{cafeDetail.phone || "전화번호 미등록"}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Globe className="w-5 h-5 text-gray-500" />
+                    <Globe className="h-5 w-5 text-gray-500" />
                     <span>{cafeDetail.website || "웹사이트 미등록"}</span>
                   </div>
                 </div>
@@ -97,21 +228,22 @@ export function CafeDetailPage() {
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="menu">메뉴</TabsTrigger>
                 <TabsTrigger value="schedule">스케줄</TabsTrigger>
-                <TabsTrigger value="feeds">메이드 피드</TabsTrigger>
+                <TabsTrigger value="maids">메이드 목록</TabsTrigger>
               </TabsList>
+
               <TabsContent value="menu">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  {cafeDetail.menus.map((menu) => (
-                    <Card key={menu.id}>
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {cafeDetail.menus.map((menu, index) => (
+                    <Card key={`${menu.name}-${index}`}>
                       <div className="flex gap-4 p-4">
                         <img
-                          src={menu.image}
+                          src={menu.image || DEFAULT_MENU_IMAGE}
                           alt={menu.name}
-                          className="w-24 h-24 object-cover rounded-lg"
+                          className="h-24 w-24 rounded-lg object-cover"
                         />
                         <div className="flex-1">
-                          <h3 className="font-semibold text-lg">{menu.name}</h3>
-                          <p className="text-pink-600 font-bold text-xl mt-2">
+                          <h3 className="text-lg font-semibold">{menu.name}</h3>
+                          <p className="mt-2 text-xl font-bold text-pink-600">
                             {menu.price.toLocaleString()}원
                           </p>
                         </div>
@@ -123,113 +255,127 @@ export function CafeDetailPage() {
                   )}
                 </div>
               </TabsContent>
+
               <TabsContent value="schedule">
                 <Card className="mt-4">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5" />
-                      이번 주 근무 스케줄
+                      <Calendar className="h-5 w-5" />
+                      {formatMonthTitle(calendarMonth)} 근무 스케줄
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {cafeDetail.schedule.map((day) => (
+                    <div className="grid grid-cols-7 border-l border-t border-gray-200 bg-white">
+                      {WEEKDAYS.map((weekday) => (
                         <div
-                          key={day.date}
-                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                          key={weekday}
+                          className="border-b border-r border-gray-200 bg-gray-50 py-2 text-center text-sm font-medium text-gray-600"
                         >
-                          <span className="font-medium">
-                            {new Date(day.date).toLocaleDateString("ko-KR", {
-                              month: "long",
-                              day: "numeric",
-                              weekday: "short",
-                            })}
-                          </span>
-                          <div className="flex gap-2">
-                            {day.maids.map((maid) => (
-                              <Badge key={maid} variant="secondary">
-                                {maid}
-                              </Badge>
-                            ))}
-                          </div>
+                          {weekday}
                         </div>
                       ))}
-                      {cafeDetail.schedule.length === 0 && (
-                        <p className="text-gray-500">
-                          등록된 스케줄이 없습니다.
-                        </p>
-                      )}
+                      {calendarDays.map((day) => {
+                        const schedule = scheduleByDate.get(day.dateKey);
+
+                        return (
+                          <div
+                            key={day.dateKey}
+                            className={`min-h-32 border-b border-r border-gray-200 p-2 ${
+                              day.isCurrentMonth ? "bg-white" : "bg-gray-50"
+                            }`}
+                          >
+                            <div
+                              className={`mb-2 text-sm font-medium ${
+                                day.isCurrentMonth
+                                  ? "text-gray-900"
+                                  : "text-gray-400"
+                              }`}
+                            >
+                              {day.date.getDate()}
+                            </div>
+                            {schedule && <ScheduleDay schedule={schedule} />}
+                          </div>
+                        );
+                      })}
                     </div>
+                    {cafeDetail.currentMonthSchedules.length === 0 && (
+                      <p className="mt-4 text-gray-500">
+                        등록된 스케줄이 없습니다.
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
-              <TabsContent value="feeds">
-                <div className="space-y-4 mt-4">
-                  {cafeDetail.maidFeeds.map((feed) => (
-                    <Card key={feed.id}>
+
+              <TabsContent value="maids">
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {cafeDetail.maids.map((maid) => (
+                    <Card key={maid.maidProfileId}>
                       <CardHeader>
                         <div className="flex items-center gap-3">
                           <Avatar>
-                            <AvatarImage src={feed.maidAvatar} />
-                            <AvatarFallback>{feed.maidName[0]}</AvatarFallback>
+                            <AvatarFallback>{maid.name[0]}</AvatarFallback>
                           </Avatar>
                           <div>
                             <CardTitle className="text-lg">
-                              {feed.maidName}
+                              {maid.name}
                             </CardTitle>
-                            <CardDescription>{feed.timestamp}</CardDescription>
+                            <CardDescription>
+                              {maid.serviceArea || "서비스 지역 미등록"}
+                            </CardDescription>
                           </div>
                         </div>
                       </CardHeader>
-                      <CardContent>
-                        <p className="mb-4">{feed.content}</p>
-                        <img
-                          src={feed.image}
-                          alt="Feed"
-                          className="w-full rounded-lg mb-4"
-                        />
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Heart className="w-5 h-5" />
-                          <span>{feed.likes} likes</span>
+                      <CardContent className="space-y-3">
+                        <p className="text-sm text-gray-700">
+                          {maid.description || "등록된 소개가 없습니다."}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {maid.instagram && (
+                            <Badge variant="secondary" className="gap-1">
+                              <Instagram className="h-3 w-3" />
+                              {maid.instagram}
+                            </Badge>
+                          )}
+                          {maid.x && (
+                            <Badge variant="secondary">X {maid.x}</Badge>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
                   ))}
-                  {cafeDetail.maidFeeds.length === 0 && (
-                    <p className="text-gray-500">
-                      등록된 메이드 피드가 없습니다.
-                    </p>
+                  {cafeDetail.maids.length === 0 && (
+                    <p className="text-gray-500">등록된 메이드가 없습니다.</p>
                   )}
                 </div>
               </TabsContent>
             </Tabs>
-          </div>
-
-          <div className="lg:col-span-1">
-            <Card className="sticky top-20">
-              <CardHeader>
-                <CardTitle>예약하기</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Button className="w-full" size="lg">
-                  예약하기
-                </Button>
-                <Button
-                  variant={isFavorite ? "default" : "outline"}
-                  className="w-full"
-                  size="lg"
-                  onClick={() => setIsFavorite(!isFavorite)}
-                >
-                  <Heart
-                    className={`w-5 h-5 mr-2 ${isFavorite ? "fill-current" : ""}`}
-                  />
-                  {isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ScheduleDay({ schedule }: { schedule: CafeSchedule }) {
+  if (schedule.maids.length === 0) {
+    return <p className="text-xs text-gray-400">근무 없음</p>;
+  }
+
+  return (
+    <div className="space-y-1">
+      {schedule.maids.map((maid) => (
+        <div
+          key={`${schedule.date}-${maid.maidProfileId}-${maid.startTime}`}
+          className="rounded bg-pink-50 px-2 py-1 text-xs text-pink-700"
+        >
+          <div className="font-medium">{maid.name}</div>
+          {formatScheduleTime(maid.startTime, maid.endTime) && (
+            <div className="text-pink-500">
+              {formatScheduleTime(maid.startTime, maid.endTime)}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

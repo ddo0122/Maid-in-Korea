@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router";
-import { LayoutDashboard, Store, LogOut } from "lucide-react";
+import { CalendarDays, Info, LogOut, UserRound, Utensils } from "lucide-react";
 import { Button } from "../components/ui/button";
 
 export function AdminLayout() {
@@ -15,22 +15,40 @@ export function AdminLayout() {
               <h1 className="text-2xl font-bold">관리자 페이지</h1>
             </div>
             <nav className="px-4 space-y-2">
-              <Link to="/admin/dashboard">
+              <Link to="/admin/cafe-management?section=info">
                 <Button
                   variant="ghost"
                   className="w-full justify-start text-white hover:bg-gray-800"
                 >
-                  <LayoutDashboard className="w-4 h-4 mr-2" />
-                  대시보드
+                  <Info className="w-4 h-4 mr-2" />
+                  기본정보
                 </Button>
               </Link>
-              <Link to="/admin/cafe-management">
+              <Link to="/admin/cafe-management?section=schedule">
                 <Button
                   variant="ghost"
                   className="w-full justify-start text-white hover:bg-gray-800"
                 >
-                  <Store className="w-4 h-4 mr-2" />
-                  카페 관리
+                  <CalendarDays className="w-4 h-4 mr-2" />
+                  스케줄 관리
+                </Button>
+              </Link>
+              <Link to="/admin/cafe-management?section=menu">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-white hover:bg-gray-800"
+                >
+                  <Utensils className="w-4 h-4 mr-2" />
+                  메뉴 관리
+                </Button>
+              </Link>
+              <Link to="/admin/cafe-management?section=maid">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-white hover:bg-gray-800"
+                >
+                  <UserRound className="w-4 h-4 mr-2" />
+                  메이드 관리
                 </Button>
               </Link>
             </nav>

@@ -45,11 +45,13 @@ public class MaidConverter {
             MaidProfile profile
     ) {
         return MaidResDTO.Profiles.builder()
+                .profileId(profile.getId())
                 .name(profile.getName())
                 .description(profile.getDescription())
                 .serviceArea(profile.getServiceArea())
                 .instagram(profile.getInstagram())
                 .x(profile.getX())
+                .isActive(profile.getIsActive())
                 .build();
     }
 

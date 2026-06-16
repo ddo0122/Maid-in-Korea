@@ -1,5 +1,6 @@
 package com.example.backend.domain.maid.controller;
 
+import com.example.backend.domain.cafe.dto.CafeResDTO;
 import com.example.backend.domain.maid.dto.MaidReqDTO;
 import com.example.backend.domain.maid.dto.MaidResDTO;
 import com.example.backend.domain.maid.exception.code.MaidSuccessCode;
@@ -9,6 +10,7 @@ import com.example.backend.domain.member.dto.MemberResDTO;
 import com.example.backend.domain.member.service.MemberService;
 import com.example.backend.global.apiPayload.ApiResponse;
 import com.example.backend.global.apiPayload.code.BaseSuccessCode;
+import com.example.backend.global.common.dto.CursorPaginationResDTO;
 import com.example.backend.global.security.entity.AuthMember;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -63,28 +65,52 @@ public class MaidController {
     @PatchMapping("/v1/profiles")
     public ApiResponse<Void> updateProfile(
             @AuthenticationPrincipal AuthMember member,
+            @RequestParam Long profileId,
             @RequestBody @Valid MaidReqDTO.UpdateInfo dto
     ) {
         BaseSuccessCode code = MaidSuccessCode.OK;
-        maidService.updateProfile(member, dto);
+        maidService.updateProfile(member, profileId, dto);
         return ApiResponse.onSuccess(code, null);
     }
 
     @DeleteMapping("/v1/profiles")
     public ApiResponse<Void> deleteProfile(
-            @AuthenticationPrincipal AuthMember member
+            @AuthenticationPrincipal AuthMember member,
+            @RequestParam Long profileId
     ) {
         BaseSuccessCode code = MaidSuccessCode.OK;
-        maidService.deleteProfile(member);
+        maidService.deleteProfile(member, profileId);
         return ApiResponse.onSuccess(code, null);
     }
 
     @PatchMapping("/v1/profiles/deactivate")
     public ApiResponse<Void> deactivateProfile(
-            @AuthenticationPrincipal AuthMember member
+            @AuthenticationPrincipal AuthMember member,
+            @RequestParam Long profileId
     ) {
         BaseSuccessCode code = MaidSuccessCode.OK;
-        maidService.deactivateProfile(member);
+        maidService.deactivateProfile(member, profileId);
+        return ApiResponse.onSuccess(code, null);
+    }
+
+    @GetMapping("/v1/invitations")
+    public ApiResponse<CursorPaginationResDTO<CafeResDTO.MaidInvitationInfo>> getInvitations(
+            @AuthenticationPrincipal AuthMember member,
+            @RequestParam(required = false) String cursor
+    ) {
+        BaseSuccessCode code = MaidSuccessCode.OK;
+        return ApiResponse.onSuccess(code, maidService.getInvitations(member, cursor));
+    }
+
+    @PatchMapping("/v1/invitations/{invitationId}")
+    public ApiResponse<Void> invitation(
+            @AuthenticationPrincipal AuthMember member,
+            @PathVariable Long invitationId,
+            @RequestParam Boolean status
+    ) {
+        BaseSuccessCode code = MaidSuccessCode.OK;
+        maidService.handleInvitation(member, invitationId, status);
+        
         return ApiResponse.onSuccess(code, null);
     }
     

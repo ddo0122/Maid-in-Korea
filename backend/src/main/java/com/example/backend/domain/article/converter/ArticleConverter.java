@@ -47,6 +47,7 @@ public class ArticleConverter {
     ) {
         return ArticleResDTO.Detail.builder()
                 .articleId(article.getId())
+                .memberId(article.getMember().getId())
                 .name(article.getMember().getName())
                 .createAt(article.getCreateAt())
                 .title(article.getTitle())

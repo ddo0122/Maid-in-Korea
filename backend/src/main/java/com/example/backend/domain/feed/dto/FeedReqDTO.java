@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 public class FeedReqDTO {
 
     public record Upload(
+            Long maidProfileId,
+
             @NotBlank(message = "글 설명은 필수입니다.")
             String description
     ) {

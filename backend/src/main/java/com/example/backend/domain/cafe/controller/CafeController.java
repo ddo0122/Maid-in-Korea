@@ -8,6 +8,7 @@ import com.example.backend.global.apiPayload.code.BaseSuccessCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,5 +35,18 @@ public class CafeController {
     ) {
         BaseSuccessCode code = CafeSuccessCode.DETAIL_OK;
         return ApiResponse.onSuccess(code, cafeService.getCafeDetail(cafeId));
+    }
+
+    @GetMapping("/v1/{cafeId}/monthly-schedules")
+    public ApiResponse<CafeResDTO.MonthlyScheduleInfo> getMonthlySchedule(
+            @PathVariable Long cafeId,
+            @RequestParam Integer year,
+            @RequestParam Integer month
+    ) {
+        BaseSuccessCode code = CafeSuccessCode.MONTHLY_SCHEDULE_OK;
+        return ApiResponse.onSuccess(
+                code,
+                cafeService.getPublishedMonthlySchedule(cafeId, year, month)
+        );
     }
 }

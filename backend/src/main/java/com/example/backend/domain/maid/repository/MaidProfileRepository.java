@@ -11,4 +11,6 @@ public interface MaidProfileRepository extends JpaRepository<MaidProfile, Long> 
     List<MaidProfile> findAllByMaidId(Long maidId);
 
     Optional<MaidProfile> findFirstByMaidId(Long maidId);
+
+    Optional<MaidProfile> findByIdAndMaidId(Long id, Long maidId);
 }

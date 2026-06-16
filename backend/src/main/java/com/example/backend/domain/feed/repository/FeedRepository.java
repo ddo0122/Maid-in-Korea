@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface FeedRepository extends JpaRepository<Feed, Long> {
 
-    List<Feed> findAllByMaidProfileId(Long maidProfileId);
+    List<Feed> findAllByMaidProfileIdOrderByCreateAtDesc(Long maidProfileId);
 }

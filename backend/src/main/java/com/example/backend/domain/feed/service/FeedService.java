@@ -45,8 +45,11 @@ public class FeedService {
         Maid maid = maidRepository.findByMemberId(member.getId())
                 .orElseThrow(() -> new FeedException(FeedErrorCode.FORBIDDEN_MAID_ONLY));
 
-        MaidProfile maidProfile = maidProfileRepository.findFirstByMaidId(maid.getId())
-                .orElseThrow(() -> new FeedException(FeedErrorCode.PROFILE_NOT_FOUND));
+        MaidProfile maidProfile = dto.maidProfileId() == null
+                ? maidProfileRepository.findFirstByMaidId(maid.getId())
+                        .orElseThrow(() -> new FeedException(FeedErrorCode.PROFILE_NOT_FOUND))
+                : maidProfileRepository.findByIdAndMaidId(dto.maidProfileId(), maid.getId())
+                        .orElseThrow(() -> new FeedException(FeedErrorCode.PROFILE_NOT_FOUND));
 
         feedRepository.save(
                 FeedConverter.toFeed(maidProfile, dto)
@@ -60,7 +63,7 @@ public class FeedService {
         maidProfileRepository.findById(maidProfileId)
                 .orElseThrow(() -> new FeedException(FeedErrorCode.PROFILE_NOT_FOUND));
 
-        List<Feed> feeds = feedRepository.findAllByMaidProfileId(maidProfileId);
+        List<Feed> feeds = feedRepository.findAllByMaidProfileIdOrderByCreateAtDesc(maidProfileId);
         return FeedConverter.toFeedInfos(feeds);
     }
 

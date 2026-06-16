@@ -20,10 +20,12 @@ public class MaidResDTO {
 
     @Builder
     public record Profiles(
+            Long profileId,
             String name,
             String description,
             String serviceArea,
             String instagram,
-            String x
+            String x,
+            Boolean isActive
     ) {}
 }

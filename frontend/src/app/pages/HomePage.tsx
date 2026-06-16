@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -10,19 +10,70 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
-import { Search, MapPin, Heart, Clock, Star } from "lucide-react";
-import cafes from "../data/cafes.json";
+import { Search, MapPin, Clock, Star } from "lucide-react";
+import { getHomeCafes, type HomeCafe } from "../api/cafeApi";
+
+const CLOSED_LABEL = "영업안함";
+const DEFAULT_CAFE_IMAGE =
+  "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800";
 
 export function HomePage() {
+  const [cafes, setCafes] = useState<HomeCafe[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("전체");
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchHomeCafes() {
+      try {
+        setIsLoading(true);
+        setErrorMessage("");
+        const homeCafes = await getHomeCafes();
+
+        if (isMounted) {
+          setCafes(homeCafes);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setErrorMessage(
+            error instanceof Error
+              ? error.message
+              : "카페 정보를 불러오지 못했습니다.",
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    fetchHomeCafes();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const locationOptions = useMemo(() => {
+    const areas = cafes
+      .map((cafe) => cafe.area)
+      .filter((area): area is string => Boolean(area));
+
+    return ["전체", ...Array.from(new Set(areas))];
+  }, [cafes]);
 
   const filteredCafes = cafes.filter((cafe) => {
     const matchesSearch = cafe.name
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const matchesLocation =
-      selectedLocation === "전체" || cafe.area.includes(selectedLocation);
+      selectedLocation === "전체" ||
+      cafe.area.includes(selectedLocation) ||
+      cafe.location.includes(selectedLocation);
     return matchesSearch && matchesLocation;
   });
 
@@ -64,37 +115,32 @@ export function HomePage() {
 
       <section className="container mx-auto px-4 py-8">
         <div className="flex flex-wrap gap-2 mb-6">
-          <Button
-            variant={selectedLocation === "전체" ? "default" : "outline"}
-            onClick={() => setSelectedLocation("전체")}
-          >
-            전체
-          </Button>
-          <Button
-            variant={selectedLocation === "강남구" ? "default" : "outline"}
-            onClick={() => setSelectedLocation("강남구")}
-          >
-            강남구
-          </Button>
-          <Button
-            variant={selectedLocation === "홍대" ? "default" : "outline"}
-            onClick={() => setSelectedLocation("홍대")}
-          >
-            홍대
-          </Button>
-          <Button
-            variant={selectedLocation === "신촌" ? "default" : "outline"}
-            onClick={() => setSelectedLocation("신촌")}
-          >
-            신촌
-          </Button>
-          <Button
-            variant={selectedLocation === "명동" ? "default" : "outline"}
-            onClick={() => setSelectedLocation("명동")}
-          >
-            명동
-          </Button>
+          {locationOptions.map((location) => (
+            <Button
+              key={location}
+              variant={selectedLocation === location ? "default" : "outline"}
+              onClick={() => setSelectedLocation(location)}
+            >
+              {location}
+            </Button>
+          ))}
         </div>
+
+        {isLoading && (
+          <div className="py-16 text-center text-gray-500">
+            카페 정보를 불러오는 중입니다.
+          </div>
+        )}
+
+        {!isLoading && errorMessage && (
+          <div className="py-16 text-center text-red-600">{errorMessage}</div>
+        )}
+
+        {!isLoading && !errorMessage && filteredCafes.length === 0 && (
+          <div className="py-16 text-center text-gray-500">
+            조건에 맞는 카페가 없습니다.
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredCafes.map((cafe) => (
@@ -102,29 +148,17 @@ export function HomePage() {
               <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
                 <div className="relative">
                   <img
-                    src={cafe.image}
+                    src={cafe.coverImage || DEFAULT_CAFE_IMAGE}
                     alt={cafe.name}
                     className="w-full h-48 object-cover"
                   />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                  >
-                    <Heart className="w-5 h-5" />
-                  </Button>
-                  {cafe.tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      className="absolute top-2 left-2 bg-pink-600"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
+                  <div className="absolute top-2 left-2 flex flex-wrap gap-1 pr-12">
+                    {cafe.tag.map((tag) => (
+                      <Badge key={tag} className="bg-pink-600">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
                 <CardHeader>
                   <CardTitle className="flex items-start justify-between">
@@ -137,9 +171,11 @@ export function HomePage() {
                   <CardDescription className="flex items-center gap-4">
                     <span className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
-                      {cafe.area}
+                      {cafe.area || cafe.location}
                     </span>
-                    <span className="text-gray-500">{cafe.distance}</span>
+                    {cafe.distance && (
+                      <span className="text-gray-500">{cafe.distance}</span>
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -147,10 +183,12 @@ export function HomePage() {
                     <Clock className="w-4 h-4" />
                     <span
                       className={
-                        cafe.isOpen ? "text-green-600" : "text-red-600"
+                        cafe.todayOperatingHour === CLOSED_LABEL
+                          ? "text-red-600"
+                          : "text-green-600"
                       }
                     >
-                      {cafe.isOpen ? "영업중" : "영업종료"}
+                      {cafe.todayOperatingHour}
                     </span>
                   </div>
                 </CardContent>

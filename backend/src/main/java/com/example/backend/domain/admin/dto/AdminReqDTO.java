@@ -77,4 +77,6 @@ public class AdminReqDTO {
             return regularClosedDays == null || !regularClosedDays.isBlank();
         }
     }
+
+
 }

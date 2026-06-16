@@ -36,7 +36,7 @@ INSERT IGNORE INTO maid_profile (
     (1004, NOW(), NOW(), NULL, 1004, '유이', '이벤트 진행과 생일 축하 서비스를 담당합니다.', '서울 홍대', 'yui_maid', 'yui_maid', TRUE),
     (1005, NOW(), NOW(), NULL, 1005, '레이', '라이브 타임과 포토카드 안내를 담당합니다.', '서울 홍대', 'rei_maid', 'rei_maid', TRUE);
 
-INSERT IGNORE INTO cafe (
+INSERT INTO cafe (
     id, create_at, updated_at, deleted_at,
     name, description, location, area, image, cover_image, phone, website,
     rating, distance, default_open_time, default_close_time, default_last_order_time, regular_closed_days
@@ -108,7 +108,23 @@ INSERT IGNORE INTO cafe (
         '23:00:00',
         '22:20:00',
         '수요일'
-    );
+    )
+ON DUPLICATE KEY UPDATE
+    updated_at = NOW(),
+    name = VALUES(name),
+    description = VALUES(description),
+    location = VALUES(location),
+    area = VALUES(area),
+    image = VALUES(image),
+    cover_image = VALUES(cover_image),
+    phone = VALUES(phone),
+    website = VALUES(website),
+    rating = VALUES(rating),
+    distance = VALUES(distance),
+    default_open_time = VALUES(default_open_time),
+    default_close_time = VALUES(default_close_time),
+    default_last_order_time = VALUES(default_last_order_time),
+    regular_closed_days = VALUES(regular_closed_days);
 
 INSERT IGNORE INTO tag (
     id, create_at, updated_at, deleted_at, name

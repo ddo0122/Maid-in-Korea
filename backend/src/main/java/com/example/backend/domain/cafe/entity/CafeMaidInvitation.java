@@ -1,8 +1,13 @@
 package com.example.backend.domain.cafe.entity;
 
+import com.example.backend.domain.admin.entity.Admin;
+import com.example.backend.domain.cafe.enums.CafeMaidInvitationStatus;
+import com.example.backend.domain.maid.entity.MaidProfile;
 import com.example.backend.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,10 +27,10 @@ import org.hibernate.annotations.SQLRestriction;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "menu")
-@SQLDelete(sql = "UPDATE menu SET deleted_at = current_timestamp WHERE id = ?")
+@Table(name = "cafe_maid_invitation")
+@SQLDelete(sql = "UPDATE cafe_maid_invitation SET deleted_at = current_timestamp WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
-public class Menu extends BaseEntity {
+public class CafeMaidInvitation extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,28 +40,23 @@ public class Menu extends BaseEntity {
     @JoinColumn(name = "cafe_id", nullable = false)
     private Cafe cafe;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "maid_profile_id", nullable = false)
+    private MaidProfile maidProfile;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id", nullable = false)
+    private Admin admin;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String name;
+    private CafeMaidInvitationStatus status;
 
-    @Column(nullable = false)
-    private Integer price;
+    public void accept() {
+        this.status = CafeMaidInvitationStatus.ACCEPTED;
+    }
 
-    @Column(columnDefinition = "TEXT")
-    private String image;
-
-    public void patchInfo(
-            String name,
-            Integer price,
-            String image
-    ) {
-        if (name != null) {
-            this.name = name;
-        }
-        if (price != null) {
-            this.price = price;
-        }
-        if (image != null) {
-            this.image = image;
-        }
+    public void reject() {
+        this.status = CafeMaidInvitationStatus.REJECTED;
     }
 }

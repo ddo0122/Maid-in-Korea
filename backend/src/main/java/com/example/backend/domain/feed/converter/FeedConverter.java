@@ -26,8 +26,10 @@ public class FeedConverter {
             Feed feed
     ) {
         return new FeedResDTO.FeedInfo(
+                feed.getId(),
                 feed.getDescription(),
-                feed.getLikeCount()
+                feed.getLikeCount(),
+                feed.getCreateAt()
         );
     }
 

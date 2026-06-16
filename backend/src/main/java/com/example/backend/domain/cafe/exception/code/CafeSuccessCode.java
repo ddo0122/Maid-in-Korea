@@ -19,6 +19,12 @@ public enum CafeSuccessCode implements BaseSuccessCode {
             HttpStatus.OK,
             "CAFE200_2",
             "카페 상세 조회에 성공했습니다."
+    ),
+
+    MONTHLY_SCHEDULE_OK(
+            HttpStatus.OK,
+            "CAFE200_3",
+            "월간 스케줄 조회에 성공했습니다."
     );
 
     private final HttpStatus status;

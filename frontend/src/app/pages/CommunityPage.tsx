@@ -1,85 +1,184 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { Textarea } from "../components/ui/textarea";
 import { Input } from "../components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
 import { Label } from "../components/ui/label";
-import { MessageCircle, Heart, PenSquare, Send } from "lucide-react";
-import communityPosts from "../data/communityPosts.json";
+import { MessageCircle, Heart, PenSquare, Pencil, Trash2 } from "lucide-react";
+import {
+  createArticle,
+  deleteArticle,
+  getArticles,
+  updateArticle,
+  type Article,
+} from "../api/articleApi";
+import { getTokenPayload } from "../api/authApi";
+
+const PAGE_SIZE = 10;
+
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleString("ko-KR", {
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 export function CommunityPage() {
-  const [posts, setPosts] = useState(communityPosts);
+  const currentMemberId = Number(getTokenPayload()?.sub);
+  const [posts, setPosts] = useState<Article[]>([]);
   const [newPostTitle, setNewPostTitle] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
-  const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
+  const [editPostId, setEditPostId] = useState<number | null>(null);
+  const [editPostTitle, setEditPostTitle] = useState("");
+  const [editPostContent, setEditPostContent] = useState("");
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasNext, setHasNext] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleCreatePost = () => {
-    if (newPostTitle && newPostContent) {
-      const newPost = {
-        id: Math.max(0, ...posts.map((post) => post.id)) + 1,
-        author: "나",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100",
-        title: newPostTitle,
-        content: newPostContent,
-        timestamp: "방금 전",
-        likes: 0,
-        comments: [],
-      };
-      setPosts([newPost, ...posts]);
+  async function fetchPosts(cursor?: string | null) {
+    try {
+      setIsLoading(true);
+      setErrorMessage("");
+      const page = await getArticles(cursor, PAGE_SIZE);
+
+      setPosts((prevPosts) =>
+        cursor ? [...prevPosts, ...page.data] : page.data,
+      );
+      setNextCursor(page.nextCursor);
+      setHasNext(page.hasNext);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "게시글을 불러오지 못했습니다.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  async function handleCreatePost() {
+    const title = newPostTitle.trim();
+    const contents = newPostContent.trim();
+
+    if (!title || !contents) {
+      setErrorMessage("제목과 내용을 모두 입력해주세요.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setErrorMessage("");
+      await createArticle({ title, contents });
       setNewPostTitle("");
       setNewPostContent("");
       setIsDialogOpen(false);
+      await fetchPosts();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "게시글 작성에 실패했습니다.",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
-  };
+  }
 
-  const handleAddComment = (postId: number) => {
-    if (newComment[postId]) {
-      const updatedPosts = posts.map((post) => {
-        if (post.id === postId) {
-          return {
-            ...post,
-            comments: [
-              ...post.comments,
-              {
-                id: Math.max(0, ...post.comments.map((comment) => comment.id)) + 1,
-                author: "나",
-                content: newComment[postId],
-                timestamp: "방금 전",
-              },
-            ],
-          };
-        }
-        return post;
-      });
-      setPosts(updatedPosts);
-      setNewComment({ ...newComment, [postId]: "" });
+  function openEditDialog(post: Article) {
+    setEditPostId(post.articleId);
+    setEditPostTitle(post.title);
+    setEditPostContent(post.contents);
+  }
+
+  async function handleUpdatePost() {
+    const title = editPostTitle.trim();
+    const contents = editPostContent.trim();
+
+    if (!editPostId || !title || !contents) {
+      setErrorMessage("제목과 내용을 모두 입력해주세요.");
+      return;
     }
-  };
+
+    try {
+      setIsSubmitting(true);
+      setErrorMessage("");
+      await updateArticle(editPostId, { title, contents });
+      setEditPostId(null);
+      await fetchPosts();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "게시글 수정에 실패했습니다.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleDeletePost(articleId: number) {
+    try {
+      setIsSubmitting(true);
+      setErrorMessage("");
+      await deleteArticle(articleId);
+      setPosts((prevPosts) =>
+        prevPosts.filter((post) => post.articleId !== articleId),
+      );
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "게시글 삭제에 실패했습니다.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="flex items-center justify-between mb-8">
+      <div className="container mx-auto max-w-4xl px-4">
+        <div className="mb-8 flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold mb-2">커뮤니티</h1>
-            <p className="text-gray-600">메이드 카페에 대한 이야기를 나눠보세요</p>
+            <h1 className="mb-2 text-4xl font-bold">커뮤니티</h1>
+            <p className="text-gray-600">
+              메이드 카페에 대한 이야기를 나눠보세요
+            </p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button size="lg">
-                <PenSquare className="w-5 h-5 mr-2" />
+                <PenSquare className="mr-2 h-5 w-5" />
                 글쓰기
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>새 게시글 작성</DialogTitle>
-                <DialogDescription>커뮤니티에 게시글을 작성해보세요</DialogDescription>
+                <DialogDescription>
+                  커뮤니티에 게시글을 작성해보세요
+                </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4 mt-4">
+              <div className="mt-4 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="title">제목</Label>
                   <Input
@@ -99,7 +198,11 @@ export function CommunityPage() {
                     onChange={(e) => setNewPostContent(e.target.value)}
                   />
                 </div>
-                <Button onClick={handleCreatePost} className="w-full">
+                <Button
+                  onClick={handleCreatePost}
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
                   게시글 작성
                 </Button>
               </div>
@@ -107,71 +210,138 @@ export function CommunityPage() {
           </Dialog>
         </div>
 
+        {errorMessage && (
+          <div className="mb-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+            {errorMessage}
+          </div>
+        )}
+
+        {isLoading && posts.length === 0 && (
+          <div className="py-16 text-center text-gray-500">
+            게시글을 불러오는 중입니다.
+          </div>
+        )}
+
+        {!isLoading && posts.length === 0 && !errorMessage && (
+          <div className="py-16 text-center text-gray-500">
+            등록된 게시글이 없습니다.
+          </div>
+        )}
+
         <div className="space-y-6">
           {posts.map((post) => (
-            <Card key={post.id}>
+            <Card key={post.articleId}>
               <CardHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <Avatar>
-                    <AvatarImage src={post.avatar} />
-                    <AvatarFallback>{post.author[0]}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold">{post.author}</p>
-                    <p className="text-sm text-gray-500">{post.timestamp}</p>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarFallback>{post.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-semibold">{post.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {formatDateTime(post.createAt)}
+                      </p>
+                    </div>
                   </div>
+                  {post.memberId === currentMemberId && (
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openEditDialog(post)}
+                        disabled={isSubmitting}
+                        aria-label="게시글 수정"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeletePost(post.articleId)}
+                        disabled={isSubmitting}
+                        aria-label="게시글 삭제"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 <CardTitle>{post.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 mb-4">{post.content}</p>
-                <div className="flex items-center gap-6 mb-4 text-gray-600">
-                  <button className="flex items-center gap-2 hover:text-pink-600 transition">
-                    <Heart className="w-5 h-5" />
-                    <span>{post.likes}</span>
-                  </button>
-                  <button className="flex items-center gap-2 hover:text-pink-600 transition">
-                    <MessageCircle className="w-5 h-5" />
-                    <span>{post.comments.length}</span>
-                  </button>
-                </div>
-
-                {post.comments.length > 0 && (
-                  <div className="space-y-3 mb-4 pl-4 border-l-2 border-gray-200">
-                    {post.comments.map((comment) => (
-                      <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-semibold text-sm">{comment.author}</span>
-                          <span className="text-xs text-gray-500">{comment.timestamp}</span>
-                        </div>
-                        <p className="text-sm text-gray-700">{comment.content}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="댓글을 입력하세요..."
-                    value={newComment[post.id] || ""}
-                    onChange={(e) =>
-                      setNewComment({ ...newComment, [post.id]: e.target.value })
-                    }
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        handleAddComment(post.id);
-                      }
-                    }}
-                  />
-                  <Button onClick={() => handleAddComment(post.id)} size="icon">
-                    <Send className="w-4 h-4" />
-                  </Button>
+                <p className="mb-4 whitespace-pre-wrap text-gray-700">
+                  {post.contents}
+                </p>
+                <div className="flex items-center gap-6 text-gray-600">
+                  <span className="flex items-center gap-2">
+                    <Heart className="h-5 w-5" />
+                    {post.likeCount}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <MessageCircle className="h-5 w-5" />
+                    {post.comments}
+                  </span>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
+
+        {hasNext && (
+          <div className="mt-8 flex justify-center">
+            <Button
+              variant="outline"
+              onClick={() => fetchPosts(nextCursor)}
+              disabled={isLoading}
+            >
+              더보기
+            </Button>
+          </div>
+        )}
       </div>
+
+      <Dialog
+        open={editPostId !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditPostId(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>게시글 수정</DialogTitle>
+            <DialogDescription>작성한 게시글을 수정합니다.</DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-title">제목</Label>
+              <Input
+                id="edit-title"
+                value={editPostTitle}
+                onChange={(e) => setEditPostTitle(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-content">내용</Label>
+              <Textarea
+                id="edit-content"
+                rows={6}
+                value={editPostContent}
+                onChange={(e) => setEditPostContent(e.target.value)}
+              />
+            </div>
+            <Button
+              onClick={handleUpdatePost}
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              수정 완료
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

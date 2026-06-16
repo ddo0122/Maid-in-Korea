@@ -5,15 +5,33 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Shield } from "lucide-react";
+import { adminLogin, saveAuthToken } from "../../api/authApi";
 
 export function AdminLoginPage() {
   const navigate = useNavigate();
   const [adminId, setAdminId] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleAdminLogin = (e: React.FormEvent) => {
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/admin/dashboard");
+    setIsSubmitting(true);
+
+    try {
+      const result = await adminLogin({
+        loginId: adminId,
+        password: adminPassword,
+      });
+
+      saveAuthToken(result.tokenType, result.accessToken, result.refreshToken);
+      navigate("/admin/cafe-management?section=info", { replace: true });
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : "관리자 로그인에 실패했습니다.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -52,8 +70,12 @@ export function AdminLoginPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full bg-gray-900 hover:bg-gray-800">
-              로그인
+            <Button
+              type="submit"
+              className="w-full bg-gray-900 hover:bg-gray-800"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "로그인 중" : "로그인"}
             </Button>
           </form>
           <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
